@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>if (!sessionStorage.getItem('currentUser')) { window.location.replace('login.html'); }</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Saya - ForumKita</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">ForumKita</a>
+            <nav class="navbar__menu">
+                <a href="index.html" class="navbar__link">Home</a>
+                <a href="bookmark.html" class="navbar__link" title="Bookmark"><i class="fa-regular fa-bookmark"></i></a>
+                <div class="notification-container">
+                    <button id="notification-bell" class="navbar__link" title="Notifikasi"><i class="fa-solid fa-bell"></i></button>
+                    <div id="notification-dropdown" class="notification-dropdown">
+                        <div class="notification-header">Notifikasi</div>
+                        <div class="notification-item">Andi menyukai thread Anda.</div>
+                        <div class="notification-footer">Lihat semua</div>
+                    </div>
+                </div>
+                <button id="theme-toggle" class="navbar__theme-btn" title="Ganti Tema"><i class="fa-solid fa-moon"></i></button>
+            </nav>
+            <div id="nav-user-section" class="navbar__user-section"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="profile-header">
+            <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="profile-info">
+                <h1 id="profile-name"></h1>
+                <p>Bergabung pada: 19 Juni 2025</p>
+            </div>
+        </div>
+        <div class="profile-stats">
+            <div class="stat-item"><h3>Total Threads</h3><p id="profile-threads-count">0</p></div>
+            <div class="stat-item"><h3>Total Komentar</h3><p id="profile-comments-count">0</p></div>
+            <div class="stat-item"><h3>Total Suka Diterima</h3><p id="profile-likes-count">0</p></div>
+        </div>
+    </main>
+
+    <footer class="footer"><div class="container"><p>&copy; 2025 ForumKita. Semua Hak Cipta Dilindungi.</p></div></footer>
+
+    <script src="js/global.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            if (user) {
+                const profileData = getUserProfileData(user.name);
+                document.getElementById('profile-name').textContent = profileData.name;
+                document.getElementById('profile-threads-count').textContent = profileData.threadCount;
+                document.getElementById('profile-comments-count').textContent = profileData.commentCount;
+                document.getElementById('profile-likes-count').textContent = profileData.likesReceived;
+            }
+        });
+    </script>
+</body>
+</html>

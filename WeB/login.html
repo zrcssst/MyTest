@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ForumKita</title>
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">ForumKita</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container" style="max-width: 450px; margin-top: 4rem;">
+            <h1>Login ke ForumKita</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Masukkan nama Anda untuk memulai sesi.</p>
+            <form id="login-form">
+                <div id="error-message-login" class="error-message" style="margin-bottom: 1rem; text-align:center;"></div>
+                <div class="form-group">
+                    <label for="username">Nama Pengguna</label>
+                    <input type="text" id="username" name="username" required placeholder="Contoh: Budi">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 ForumKita. Semua Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (getCurrentUser()) {
+                window.location.href = 'index.html';
+            }
+
+            const loginForm = document.getElementById('login-form');
+            const errorMessage = document.getElementById('error-message-login');
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const usernameInput = document.getElementById('username');
+                const username = usernameInput.value.trim();
+
+                if (username) {
+                    login(username);
+                    window.location.href = 'index.html';
+                } else {
+                    errorMessage.textContent = 'Nama pengguna tidak boleh kosong.';
+                    usernameInput.style.borderColor = 'var(--accent-color)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

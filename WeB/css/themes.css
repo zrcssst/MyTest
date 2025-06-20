@@ -1,0 +1,43 @@
+/* css/themes.css */
+
+/* --- Google Fonts Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* --- Color Palette (Light Mode) --- */
+    --primary-color: #4361EE;
+    --secondary-color: #3A0CA3;
+    --accent-color: #F72585;
+    --info-color: #4CC9F0;
+
+    --background-primary: #F8F9FA;
+    --background-secondary: #FFFFFF;
+    --text-primary: #212529;
+    --text-secondary: #6C757D;
+    --border-color: #E9ECEF;
+    
+    /* --- Typography --- */
+    --font-main: 'Inter', sans-serif;
+
+    /* --- Spacing & Radius --- */
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+    --border-radius: 8px;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] {
+    /* --- Color Palette (Dark Mode) --- */
+    --primary-color: #4361EE; /* Bisa disesuaikan agar kontras lebih baik di mode gelap */
+    --secondary-color: #4CC9F0;
+    --accent-color: #F72585;
+    --info-color: #3A0CA3;
+    
+    --background-primary: #121212;
+    --background-secondary: #1E1E1E;
+    --text-primary: #EAEAEA;
+    --text-secondary: #A0A0A0;
+    --border-color: #333333;
+
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}

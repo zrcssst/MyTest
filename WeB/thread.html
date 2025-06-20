@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Thread - ForumKita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">ForumKita</a>
+            <nav class="navbar__menu">
+                <a href="index.html" class="navbar__link active">Home</a>
+                <a href="bookmark.html" class="navbar__link"><i class="fa-regular fa-bookmark"></i></a>
+                <button id="theme-toggle" class="navbar__theme-btn"><i class="fa-solid fa-moon"></i></button>
+            </nav>
+            <div id="nav-user-section" class="navbar__user-section">
+                </div>
+            <a href="create-thread.html" class="btn btn--primary navbar__cta">Buat Thread</a>
+        </div>
+    </header>
+
+    <main class="container" id="thread-detail-container">
+        <div class="loading-spinner"></div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 ForumKita. Semua Hak Cipta Dilindungi.</p>
+            <div class="footer__links">
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Syarat Penggunaan</a>
+                <a href="#">Kontak Admin</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/thread-detail.js"></script>
+</body>
+</html>

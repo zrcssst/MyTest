@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <script>
+        if (!sessionStorage.getItem('currentUser')) {
+            window.location.replace('login.html');
+        }
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Thread Baru - ForumKita</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">ForumKita</a>
+            <nav class="navbar__menu">
+                <a href="index.html" class="navbar__link">Home</a>
+                <a href="bookmark.html" class="navbar__link"><i class="fa-regular fa-bookmark"></i></a>
+                <button id="theme-toggle" class="navbar__theme-btn"><i class="fa-solid fa-moon"></i></button>
+            </nav>
+            <div id="nav-user-section" class="navbar__user-section"></div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container">
+            <h1>Buat Thread Baru</h1>
+            <form id="create-thread-form">
+                <div class="form-group">
+                    <label for="thread-title">Judul Thread</label>
+                    <input type="text" id="thread-title" name="title" required minlength="10" placeholder="Tulis judul yang menarik...">
+                    <small class="error-message" id="title-error"></small>
+                </div>
+                <div class="form-group">
+                    <label for="thread-category">Kategori</label>
+                    <select id="thread-category" name="category" required>
+                        <option value="" disabled selected>Pilih Kategori</option>
+                        <option value="edukasi">Edukasi</option>
+                        <option value="teknologi">Teknologi</option>
+                        <option value="hobi">Hobi</option>
+                        <option value="umum">Umum</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="thread-content">Konten</label>
+                    <textarea id="thread-content" name="content" rows="10" required placeholder="Jelaskan isi pikiranmu..."></textarea>
+                    <small class="error-message" id="content-error"></small>
+                </div>
+                <button type="submit" class="btn btn--primary">Publikasikan Thread</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 ForumKita. Semua Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+    
+    <script src="js/global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('create-thread-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const titleInput = document.getElementById('thread-title');
+            const contentInput = document.getElementById('thread-content');
+            const isTitleValid = validateField(titleInput, 'title-error', 'Judul minimal 10 karakter.');
+            const isContentValid = validateField(contentInput, 'content-error', 'Konten tidak boleh kosong.');
+
+            if (isTitleValid && isContentValid) {
+                const currentUser = getCurrentUser();
+                const newThread = {
+                    title: titleInput.value,
+                    category: document.getElementById('thread-category').value,
+                    content: DOMPurify.sanitize(contentInput.value),
+                    author: currentUser.name,
+                    timestamp: new Date().toISOString(),
+                    views: 0,
+                    commentsCount: 0,
+                    likes: 0,
+                    comments: []
+                };
+                saveNewThread(newThread);
+                window.location.href = 'index.html?status=thread_created';
+            }
+        });
+    </script>
+</body>
+</html>
