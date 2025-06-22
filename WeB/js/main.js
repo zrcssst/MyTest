@@ -115,9 +115,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+   renderLoadingSkeletons();
+showNotification(); 
+setTimeout(() => {  
     renderThreads();
     renderStats();
-    showNotification();
-    renderLoadingSkeletons();
-    setTimeout(() => { renderThreads(); renderStats(); showNotification(); }, 300); // Sedikit delay untuk efek loading
+}, 300); 
 });

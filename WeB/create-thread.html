@@ -70,35 +70,49 @@
         </div>
     </footer>
     
-    <script src="js/global.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
-    <script src="js/validation.js"></script>
-    <script src="js/api.js"></script>
-    <script>
-        document.getElementById('create-thread-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const titleInput = document.getElementById('thread-title');
-            const contentInput = document.getElementById('thread-content');
-            const isTitleValid = validateField(titleInput, 'title-error', 'Judul minimal 10 karakter.');
-            const isContentValid = validateField(contentInput, 'content-error', 'Konten tidak boleh kosong.');
+   <script src="js/global.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/api.js"></script>
+<script>
+    document.getElementById('create-thread-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const titleInput = document.getElementById('thread-title');
+        const contentInput = document.getElementById('thread-content');
+        const categoryInput = document.getElementById('thread-category'); // <-- [DITAMBAHKAN] Ambil elemen kategori
 
-            if (isTitleValid && isContentValid) {
-                const currentUser = getCurrentUser();
-                const newThread = {
-                    title: titleInput.value,
-                    category: document.getElementById('thread-category').value,
-                    content: DOMPurify.sanitize(contentInput.value),
-                    author: currentUser.name,
-                    timestamp: new Date().toISOString(),
-                    views: 0,
-                    commentsCount: 0,
-                    likes: 0,
-                    comments: []
-                };
-                saveNewThread(newThread);
-                window.location.href = 'index.html?status=thread_created';
-            }
-        });
-    </script>
+        const isTitleValid = validateField(titleInput, 'title-error', 'Judul minimal 10 karakter.');
+        const isContentValid = validateField(contentInput, 'content-error', 'Konten tidak boleh kosong.');
+        
+        // [DIPERBAIKI] Tambahkan validasi untuk kategori
+        const isCategoryValid = categoryInput.value !== "";
+        if (!isCategoryValid) {
+            // Beri peringatan kepada pengguna untuk memilih kategori
+            alert('Silakan pilih kategori terlebih dahulu.');
+            categoryInput.style.borderColor = 'var(--accent-color)'; // Beri tanda visual
+            return; // Hentikan fungsi jika kategori tidak valid
+        } else {
+            categoryInput.style.borderColor = 'var(--border-color)'; // Kembalikan ke normal jika valid
+        }
+
+        // Lanjutkan hanya jika semua field yang diperlukan valid
+        if (isTitleValid && isContentValid && isCategoryValid) {
+            const currentUser = getCurrentUser();
+            const newThread = {
+                title: titleInput.value,
+                category: categoryInput.value,
+                content: DOMPurify.sanitize(contentInput.value),
+                author: currentUser.name,
+                timestamp: new Date().toISOString(),
+                views: 0,
+                commentsCount: 0,
+                likes: 0,
+                comments: []
+            };
+            saveNewThread(newThread);
+            window.location.href = 'index.html?status=thread_created';
+        }
+    });
+</script>
 </body>
 </html>
