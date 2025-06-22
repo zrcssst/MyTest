@@ -69,3 +69,85 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .footer__links { margin-top: 0.5rem; display: flex; justify-content: center; gap: var(--spacing-md); }
 .footer__links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
 .footer__links a:hover { color: var(--primary-color); }
+.notification-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 1rem); /* Muncul tepat di bawah ikon lonceng */
+    right: 0;
+    width: 340px;
+    background-color: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    z-index: 1010;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.notification-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.notification-header,
+.notification-footer {
+    padding: 0.75rem var(--spacing-md);
+    font-weight: 600;
+}
+
+.notification-header {
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1rem;
+}
+
+.notification-dropdown-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item i {
+    color: var(--info-color);
+    margin-top: 4px;
+}
+
+.notification-item p {
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+.notification-item strong {
+    color: var(--primary-color);
+}
+
+.notification-footer {
+    border-top: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    text-align: center;
+    cursor: pointer;
+    color: var(--primary-color);
+    transition: background-color 0.2s;
+}
+
+.notification-footer:hover {
+    background-color: var(--background-primary);
+}
