@@ -1,30 +1,40 @@
 // js/thread-detail.js
-document.addEventListener('DOMContentLoaded', async () => { // Menjadi async
+document.addEventListener('DOMContentLoaded', async () => { 
     const threadContainer = document.getElementById('thread-detail-container');
     const params = new URLSearchParams(window.location.search);
     const threadId = params.get('id');
 
     if (!threadId) { threadContainer.innerHTML = '<p class="error-message">Error: ID thread tidak ditemukan.</p>'; return; }
 
-    await incrementViewCount(threadId); // Menggunakan await
-    const thread = await getThreadById(threadId); 
+    await incrementViewCount(threadId);
+    const thread = await getThreadById(threadId);
     if (!thread) { threadContainer.innerHTML = '<p class="error-message">Thread tidak ditemukan.</p>'; return; }
     
-       renderThreadDetail(thread);
+    renderThreadDetail(thread);
 
-    threadContainer.addEventListener('click', async function(event) { // Event listener juga menjadi async
+    threadContainer.addEventListener('click', async function(event) {
         const likeButton = event.target.closest('.like-btn');
         if (likeButton) {
             likeButton.disabled = true;
-            likeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
-            const newLikes = await addLikeToThread(threadId); // Menggunakan await
-            if (newLikes !== null) { 
-                likeButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Suka (${newLikes})`; 
-                likeButton.classList.add('active');
+            likeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            const newLikes = await addLikeToThread(threadId);
+            if (newLikes !== null) {
+                const thread = await getThreadById(threadId); 
+                renderThreadDetail(thread); 
             }
             likeButton.disabled = false;
         }
-
+        const dislikeButton = event.target.closest('.dislike-btn');
+        if (dislikeButton) {
+            dislikeButton.disabled = true;
+            dislikeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+            const newDislikes = await addDislikeToThread(threadId);
+            if (newDislikes !== null) {
+                const thread = await getThreadById(threadId); 
+                renderThreadDetail(thread);
+            }
+            dislikeButton.disabled = false;
+        }
         const bookmarkButton = event.target.closest('.bookmark-btn');
         if (bookmarkButton) {
             const bookmarked = toggleBookmark(threadId); // Ini tetap sinkron
@@ -49,16 +59,19 @@ document.addEventListener('DOMContentLoaded', async () => { // Menjadi async
         button.classList.toggle('active', isBookmarkedStatus);
     }
 
-    function renderThreadDetail(threadData) {
+       function renderThreadDetail(threadData) {
         document.title = `${threadData.title} - ForumKita`;
         const sanitizedContent = DOMPurify.sanitize(threadData.content, { USE_PROFILES: { html: true } });
+        const voteScore = (threadData.likes || 0) - (threadData.dislikes || 0);
         threadContainer.innerHTML = `
             <article class="thread-full">
                 <h1 class="thread-full__title">${threadData.title}</h1>
                 <div class="thread-card__meta"><span>Oleh <strong>${threadData.author}</strong></span> • <time>${new Date(threadData.timestamp).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })}</time></div>
                 <div class="thread-full__content">${sanitizedContent}</div>
                 <div class="thread-full__actions">
-                    <button class="btn-action like-btn"><i class="fa-regular fa-thumbs-up"></i> Suka (${threadData.likes})</button>
+                    <button class="btn-action like-btn"><i class="fa-regular fa-thumbs-up"></i></button>
+                    <span class="vote-score">${voteScore}</span>
+                    <button class="btn-action dislike-btn"><i class="fa-regular fa-thumbs-down"></i></button>
                     <button class="btn-action bookmark-btn"></button>
                     <button class="btn-action"><i class="fa-regular fa-flag"></i> Report</button>
                 </div>
