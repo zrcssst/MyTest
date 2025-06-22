@@ -1,89 +1,102 @@
-// js/global.js (Versi Debugging untuk Melacak Masalah)
+// js/global.js
+
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('HALAMAN SIAP: Skrip global.js telah dimuat.');
-
-    // --- KITA FOKUS HANYA PADA BAGIAN INI ---
-    const bell = document.getElementById('notification-bell');
-    const dropdown = document.getElementById('notification-dropdown');
-
-    // Pastikan elemennya ada di halaman ini
-    if (bell && dropdown) {
-        console.log('DEBUG: Elemen notifikasi (bell & dropdown) berhasil ditemukan.');
-
-        document.addEventListener('click', (e) => {
-            console.log('--- Klik Terdeteksi ---');
-
-            const isClickInsideBell = bell.contains(e.target);
-            const isClickInsideDropdown = dropdown.contains(e.target);
-            const isDropdownVisible = dropdown.classList.contains('show');
-
-            // Menampilkan status setiap kali ada klik
-            console.log(`Status -> Diklik di dalam lonceng? ${isClickInsideBell}`);
-            console.log(`Status -> Diklik di dalam dropdown? ${isClickInsideDropdown}`);
-            console.log(`Status -> Dropdown sedang terlihat? ${isDropdownVisible}`);
-
-            // Logika utama untuk membuka/menutup
-            if (isClickInsideBell) {
-                console.log('AKSI: Membuka/menutup dropdown karena lonceng diklik.');
-                dropdown.classList.toggle('show');
-                return; // Menghentikan proses lebih lanjut jika lonceng diklik
-            }
-
-            // Logika untuk menutup jika klik di luar
-            if (!isClickInsideDropdown && isDropdownVisible) {
-                console.log('AKSI: Menutup dropdown karena klik terjadi di luar.');
-                dropdown.classList.remove('show');
-            }
-        });
-
-    } else {
-        console.log('INFO: Elemen notifikasi tidak ditemukan di halaman ini (ini normal untuk halaman login).');
+    // Fungsi untuk mendapatkan pengguna saat ini dari session storage
+    function getCurrentUser() {
+        const user = sessionStorage.getItem('currentUser');
+        return user ? JSON.parse(user) : null;
     }
-
-
-    // --- BAGIAN LAIN SEMENTARA DIBIARKAN AGAR TIDAK MENGGANGGU ---
-
-    // Manajer Tampilan Pengguna (tetap ada agar tidak error)
-    const user = getCurrentUser();
-    const navUserSection = document.getElementById('nav-user-section');
-    if (navUserSection) {
-        if (user) {
-            navUserSection.innerHTML = `<a href="profile.html" class="navbar__username" title="Lihat Profil">Halo, ${user.name}</a><button id="logout-btn" class="btn btn--secondary">Logout</button>`;
-        } else {
-            navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
-        }
-    }
-     // Manajer Tema (tetap ada agar tidak error)
-    const themeToggleButton = document.getElementById('theme-toggle');
-    if (themeToggleButton) {
-        const applyTheme = () => {
-            const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'dark') {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                themeToggleButton.innerHTML = '<i class="fa-solid fa-sun"></i>';
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-                themeToggleButton.innerHTML = '<i class="fa-solid fa-moon"></i>';
-            }
-        };
-         themeToggleButton.addEventListener('click', () => {
-            let currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'dark') {
-                localStorage.removeItem('theme');
-            } else {
-                localStorage.setItem('theme', 'dark');
-            }
-            applyTheme();
-        });
-        applyTheme();
-    }
-    // Fungsi logout harus ada agar tidak error
+    
+    // Fungsi untuk logout
     function logout() {
         sessionStorage.removeItem('currentUser');
         window.location.href = 'login.html';
     }
-    function getCurrentUser() {
-        const user = sessionStorage.getItem('currentUser');
-        return user ? JSON.parse(user) : null;
+
+    // --- Manajemen Tampilan Tema (Terang/Gelap) ---
+    const themeToggleButton = document.getElementById('theme-toggle');
+    if (themeToggleButton) {
+        // Fungsi untuk menerapkan tema berdasarkan localStorage
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggleButton.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeToggleButton.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            }
+        };
+
+        // Event listener untuk tombol ganti tema
+        themeToggleButton.addEventListener('click', () => {
+            let currentTheme = localStorage.getItem('theme') || 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Terapkan tema saat halaman dimuat
+        applyTheme(localStorage.getItem('theme'));
+    }
+
+    // --- Manajemen Tampilan Pengguna di Navbar ---
+    const navUserSection = document.getElementById('nav-user-section');
+    if (navUserSection) {
+        const user = getCurrentUser();
+        if (user) {
+            navUserSection.innerHTML = `
+                <a href="profile.html" class="navbar__username" title="Lihat Profil">Halo, ${user.name}</a>
+                <button id="logout-btn" class="btn btn--secondary">Logout</button>
+            `;
+            document.getElementById('logout-btn').addEventListener('click', logout);
+        } else {
+            navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
+        }
+    }
+
+    // --- [DIPERBAIKI] Logika Dropdown Notifikasi ---
+    const bell = document.getElementById('notification-bell');
+    const dropdown = document.getElementById('notification-dropdown');
+
+    if (bell && dropdown) {
+        // Fungsi untuk memuat dan merender notifikasi dari API
+        const renderNotifications = () => {
+            const contentContainer = dropdown.querySelector('.notification-dropdown-content');
+            contentContainer.innerHTML = '<div class="notification-item">Memuat...</div>'; // Tampilkan loading
+            
+            // Panggil API untuk mendapatkan notifikasi (disimulasikan dari api.js)
+            const notifications = getNotifications(); // Fungsi ini ada di api.js
+
+            if (notifications && notifications.length > 0) {
+                contentContainer.innerHTML = notifications.map(notif => `
+                    <div class="notification-item">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <p>${notif.message}</p>
+                    </div>
+                `).join('');
+            } else {
+                contentContainer.innerHTML = '<div class="notification-item">Tidak ada notifikasi baru.</div>';
+            }
+        };
+
+        // Event listener utama pada dokumen untuk menangani semua klik
+        document.addEventListener('click', (e) => {
+            // Cek apakah klik berasal dari dalam lonceng
+            if (bell.contains(e.target)) {
+                const isDropdownVisible = dropdown.classList.contains('show');
+                // Jika dropdown akan dibuka, render kontennya
+                if (!isDropdownVisible) {
+                    renderNotifications();
+                }
+                // Toggle tampilan dropdown
+                dropdown.classList.toggle('show');
+                return; // PENTING: Hentikan eksekusi agar tidak lanjut ke pengecekan di bawah
+            }
+
+            // Jika dropdown terlihat DAN klik terjadi di luar dropdown, tutup dropdown
+            if (dropdown.classList.contains('show') && !dropdown.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
     }
 });
