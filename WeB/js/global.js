@@ -1,6 +1,49 @@
-// js/global.js
+// js/global.js (Versi Debugging untuk Melacak Masalah)
 document.addEventListener('DOMContentLoaded', () => {
-    // Manajer Tampilan Pengguna
+    console.log('HALAMAN SIAP: Skrip global.js telah dimuat.');
+
+    // --- KITA FOKUS HANYA PADA BAGIAN INI ---
+    const bell = document.getElementById('notification-bell');
+    const dropdown = document.getElementById('notification-dropdown');
+
+    // Pastikan elemennya ada di halaman ini
+    if (bell && dropdown) {
+        console.log('DEBUG: Elemen notifikasi (bell & dropdown) berhasil ditemukan.');
+
+        document.addEventListener('click', (e) => {
+            console.log('--- Klik Terdeteksi ---');
+
+            const isClickInsideBell = bell.contains(e.target);
+            const isClickInsideDropdown = dropdown.contains(e.target);
+            const isDropdownVisible = dropdown.classList.contains('show');
+
+            // Menampilkan status setiap kali ada klik
+            console.log(`Status -> Diklik di dalam lonceng? ${isClickInsideBell}`);
+            console.log(`Status -> Diklik di dalam dropdown? ${isClickInsideDropdown}`);
+            console.log(`Status -> Dropdown sedang terlihat? ${isDropdownVisible}`);
+
+            // Logika utama untuk membuka/menutup
+            if (isClickInsideBell) {
+                console.log('AKSI: Membuka/menutup dropdown karena lonceng diklik.');
+                dropdown.classList.toggle('show');
+                return; // Menghentikan proses lebih lanjut jika lonceng diklik
+            }
+
+            // Logika untuk menutup jika klik di luar
+            if (!isClickInsideDropdown && isDropdownVisible) {
+                console.log('AKSI: Menutup dropdown karena klik terjadi di luar.');
+                dropdown.classList.remove('show');
+            }
+        });
+
+    } else {
+        console.log('INFO: Elemen notifikasi tidak ditemukan di halaman ini (ini normal untuk halaman login).');
+    }
+
+
+    // --- BAGIAN LAIN SEMENTARA DIBIARKAN AGAR TIDAK MENGGANGGU ---
+
+    // Manajer Tampilan Pengguna (tetap ada agar tidak error)
     const user = getCurrentUser();
     const navUserSection = document.getElementById('nav-user-section');
     if (navUserSection) {
@@ -10,47 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
         }
     }
-    
-    // Listener untuk tombol logout dengan konfirmasi **[DIUBAH]**
-    document.body.addEventListener('click', (e) => { 
-        if (e.target.id === 'logout-btn') {
-            if (confirm('Apakah Anda yakin ingin logout?')) {
-                logout();
-            }
-        }
-    });
-
-    // Manajer Notifikasi **[DIUBAH]**
-    const bell = document.getElementById('notification-bell');
-    const dropdown = document.getElementById('notification-dropdown');
-    
-    const renderNotifications = () => {
-        const notifications = getNotifications(); // Mengambil notifikasi dari API
-        const dropdownContent = dropdown.querySelector('.notification-dropdown-content');
-        
-        if (notifications.length === 0) {
-            dropdownContent.innerHTML = '<div class="notification-item">Tidak ada notifikasi baru.</div>';
-            return;
-        }
-        
-        dropdownContent.innerHTML = notifications.map(notif => 
-            `<div class="notification-item">${notif.message}</div>`
-        ).join('');
-    };
-
-    if (bell && dropdown) {
-        bell.addEventListener('click', (e) => { 
-            e.stopPropagation(); 
-            dropdown.classList.toggle('show');
-            if (dropdown.classList.contains('show')) {
-                renderNotifications(); // Render notifikasi saat dropdown dibuka
-            }
-        });
-        document.addEventListener('click', () => dropdown.classList.remove('show'));
-        dropdown.addEventListener('click', (e) => e.stopPropagation());
-    }
-
-    // Manajer Tema
+     // Manajer Tema (tetap ada agar tidak error)
     const themeToggleButton = document.getElementById('theme-toggle');
     if (themeToggleButton) {
         const applyTheme = () => {
@@ -63,8 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeToggleButton.innerHTML = '<i class="fa-solid fa-moon"></i>';
             }
         };
-
-        themeToggleButton.addEventListener('click', () => {
+         themeToggleButton.addEventListener('click', () => {
             let currentTheme = document.documentElement.getAttribute('data-theme');
             if (currentTheme === 'dark') {
                 localStorage.removeItem('theme');
@@ -73,7 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             applyTheme();
         });
-        
-        applyTheme(); 
+        applyTheme();
+    }
+    // Fungsi logout harus ada agar tidak error
+    function logout() {
+        sessionStorage.removeItem('currentUser');
+        window.location.href = 'login.html';
+    }
+    function getCurrentUser() {
+        const user = sessionStorage.getItem('currentUser');
+        return user ? JSON.parse(user) : null;
     }
 });
