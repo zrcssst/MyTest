@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script>if (!sessionStorage.getItem('currentUser')) { window.location.replace('login.html'); }</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Thread - ForumKita</title>
@@ -13,19 +14,30 @@
     <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="container navbar__container">
-            <a href="index.html" class="navbar__logo">ForumKita</a>
-            <nav class="navbar__menu">
-                <a href="index.html" class="navbar__link active">Home</a>
-                <a href="bookmark.html" class="navbar__link"><i class="fa-regular fa-bookmark"></i></a>
-                <button id="theme-toggle" class="navbar__theme-btn"><i class="fa-solid fa-moon"></i></button>
-            </nav>
-            <div id="nav-user-section" class="navbar__user-section">
-                </div>
-            <a href="create-thread.html" class="btn btn--primary navbar__cta">Buat Thread</a>
+ <header class="navbar">
+    <div class="container navbar__container">
+        <a href="index.html" class="navbar__logo">ForumKita</a>
+        <div class="navbar__search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Cari thread...">
         </div>
-    </header>
+        <nav class="navbar__menu">
+            <a href="index.html" class="navbar__link" title="Home"><i class="fa-solid fa-house"></i></a>
+            <a href="bookmark.html" class="navbar__link" title="Bookmark"><i class="fa-regular fa-bookmark"></i></a>
+            <div class="notification-container">
+                <button id="notification-bell" class="navbar__link" title="Notifikasi"><i class="fa-solid fa-bell"></i></button>
+                <div id="notification-dropdown" class="notification-dropdown">
+                    <div class="notification-header">Notifikasi</div>
+                    <div class="notification-item">Bunga berkomentar di thread "Rekomendasi buku...".</div>
+                    <div class="notification-item">Selamat datang di ForumKita!</div>
+                    <div class="notification-footer">Tandai sudah dibaca</div>
+                </div>
+            </div>
+            <button id="theme-toggle" class="navbar__theme-btn" title="Ganti Tema"><i class="fa-solid fa-moon"></i></button>
+        </nav>
+        <div id="nav-user-section" class="navbar__user-section"></div>
+    </div>
+</header>
 
     <main class="container" id="thread-detail-container">
         <div class="loading-spinner"></div>

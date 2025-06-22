@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdown.addEventListener('click', (e) => e.stopPropagation());
     }
     document.body.addEventListener('click', (event) => { if (event.target.id === 'logout-btn') { logout(); } });
-    const themeToggleButton = document.getElementById('theme-toggle');
+     const themeToggleButton = document.getElementById('theme-toggle');
     if (themeToggleButton) {
         const applyTheme = () => {
             const currentTheme = localStorage.getItem('theme');
@@ -33,12 +33,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeToggleButton.innerHTML = '<i class="fa-solid fa-moon"></i>';
             }
         };
-        themeToggleButton.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-            localStorage.setItem('theme', theme === 'dark' ? 'light' : 'dark');
-            if (theme === 'dark') localStorage.removeItem('theme');
+         themeToggleButton.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                localStorage.removeItem('theme');
+            } else {
+                localStorage.setItem('theme', 'dark');
+            }
             applyTheme();
         });
-        applyTheme();
+        
+        applyTheme(); 
     }
 });
