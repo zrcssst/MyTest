@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const isBookmarkPage = window.location.pathname.includes('bookmark.html');
     const threadListContainer = document.getElementById('thread-list-container');
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = document.getElementById('searchInput'); 
     const pageTitle = document.getElementById('page-title');
     let state = { sort: 'terbaru', category: 'all' };
 
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    const renderThreads = (keyword = '') => {
+     const renderThreads = (keyword = '') => {
         let threads = isBookmarkPage ? getThreads().filter(t => getBookmarks().includes(t.id)) : getThreads();
         if (!isBookmarkPage && state.category !== 'all') { threads = threads.filter(t => t.category === state.category); }
         if (keyword) { threads = threads.filter(t => t.title.toLowerCase().includes(keyword)); }
@@ -64,15 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         threads.forEach(thread => threadListContainer.appendChild(createThreadCard(thread)));
     };
-
-    const debouncedRender = debounce((e) => renderThreads(e.target.value.toLowerCase()), 500);
-    
-    if(searchInput) {
-        searchInput.addEventListener('keyup', (e) => {
-            renderLoadingSkeletons();
-            debouncedRender(e);
-        });
-    }
 
     if (!isBookmarkPage) {
         const sortingOptions = document.querySelector('.sorting-options');
@@ -115,15 +106,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // [DIPERBAIKI] Memperbaiki urutan render untuk user experience yang lebih baik
-    // 1. Tampilkan animasi loading skeleton terlebih dahulu.
-    renderLoadingSkeletons();
-    showNotification(); // Notifikasi bisa ditampilkan segera
+   renderLoadingSkeletons();
+    showNotification();
 
-    // 2. Gunakan setTimeout untuk menyimulasikan pengambilan data dari server.
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('search');
+
+    if (searchQuery) {
+        searchInput.value = searchQuery; // Isi kolom pencarian dengan query dari URL
+    }
+
     setTimeout(() => {
-        // 3. Setelah jeda, render konten thread dan statistik.
-        renderThreads();
+        renderThreads(searchQuery ? searchQuery.toLowerCase() : ''); // Gunakan query dari URL untuk render awal
         renderStats();
-    }, 300); // Jeda 300ms untuk efek loading
+    } , 300);
 });

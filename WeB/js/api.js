@@ -45,17 +45,46 @@ function getUserProfileData(username) {
         threads: userThreads // Mengembalikan juga daftar thread yang dibuat
     };
 }
-
-/**
- * **[BARU]** Fungsi untuk mengambil notifikasi (simulasi).
- */
 function getNotifications() {
-    // Ini adalah data simulasi, di dunia nyata ini akan berasal dari server.
-    return [
-        { id: 1, message: 'Bunga berkomentar di thread "Rekomendasi buku...".' },
-        { id: 2, message: 'Thread Anda "Tips & Trik Optimasi" mendapatkan suka baru.' },
-        { id: 3, message: 'Selamat datang di ForumKita! Jangan ragu untuk memulai diskusi.' }
-    ];
+    const currentUser = getCurrentUser();
+    const allThreads = getThreads();
+    let notifications = [];
+
+    if (!currentUser) {
+        return [{ id: 1, message: 'Selamat datang! Silakan login untuk berinteraksi.' }];
+    }
+
+    // Notifikasi selamat datang default
+    notifications.push({ 
+        id: 'welcome', 
+        message: `Selamat datang kembali, ${currentUser.name}! Siap berdiskusi hari ini?` 
+    });
+
+    const userThreads = allThreads.filter(t => t.author === currentUser.name);
+
+    userThreads.forEach(thread => {
+        // Cek apakah ada komentar baru dari orang lain di thread kita
+        if (thread.comments && thread.comments.length > 0) {
+            const lastComment = thread.comments[thread.comments.length - 1];
+            if (lastComment.author !== currentUser.name) {
+                notifications.push({
+                    id: `notif-comment-${thread.id}`,
+                    message: `<strong>${lastComment.author}</strong> berkomentar di thread Anda: "${thread.title.substring(0, 20)}..."`
+                });
+            }
+        }
+
+        // Cek apakah thread kita mendapatkan suka
+        if (thread.likes > 10) { // Contoh: notifikasi jika suka lebih dari 10
+             notifications.push({
+                id: `notif-like-${thread.id}`,
+                message: `Thread Anda "${thread.title.substring(0, 20)}..." populer dan disukai banyak orang!`
+            });
+        }
+    });
+
+    // Batasi jumlah notifikasi agar tidak terlalu banyak
+    return notifications.slice(0, 4); 
 }
 
 initializeData();

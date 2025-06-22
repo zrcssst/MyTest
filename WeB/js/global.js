@@ -1,9 +1,6 @@
 // js/global.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // [DIHAPUS] Fungsi getCurrentUser dan logout dihapus dari sini
-    // karena sudah tersedia dari api.js yang dimuat lebih dulu.
-    // Ini membuat kode lebih bersih dan mudah dipelihara (Prinsip DRY).
 
     // --- Manajemen Tampilan Tema (Terang/Gelap) ---
     const themeToggleButton = document.getElementById('theme-toggle');
@@ -42,11 +39,21 @@ document.addEventListener('DOMContentLoaded', () => {
             navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
         }
     }
-
+ const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Arahkan ke halaman utama dengan parameter pencarian
+                    window.location.href = `index.html?search=${encodeURIComponent(query)}`;
+                }
+            }
+        });
+    }
     // --- Logika Dropdown Notifikasi ---
-    const bell = document.getElementById('notification-bell');
+      const bell = document.getElementById('notification-bell');
     const dropdown = document.getElementById('notification-dropdown');
-
     if (bell && dropdown) {
         const renderNotifications = () => {
             const contentContainer = dropdown.querySelector('.notification-dropdown-content');
