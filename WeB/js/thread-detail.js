@@ -1,52 +1,49 @@
 // js/thread-detail.js
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => { // Menjadi async
     const threadContainer = document.getElementById('thread-detail-container');
     const params = new URLSearchParams(window.location.search);
     const threadId = params.get('id');
 
     if (!threadId) { threadContainer.innerHTML = '<p class="error-message">Error: ID thread tidak ditemukan.</p>'; return; }
 
-    incrementViewCount(threadId);
-    const thread = getThreadById(threadId);
+    await incrementViewCount(threadId); // Menggunakan await
+    const thread = await getThreadById(threadId); 
     if (!thread) { threadContainer.innerHTML = '<p class="error-message">Thread tidak ditemukan.</p>'; return; }
     
-    renderThreadDetail(thread);
+       renderThreadDetail(thread);
 
-    threadContainer.addEventListener('click', function(event) {
+    threadContainer.addEventListener('click', async function(event) { // Event listener juga menjadi async
         const likeButton = event.target.closest('.like-btn');
         if (likeButton) {
-            // [DIUBAH] Tambahkan umpan balik visual
             likeButton.disabled = true;
             likeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
-            setTimeout(() => { // Simulasi delay jaringan
-                const newLikes = addLikeToThread(threadId); 
-                if (newLikes !== null) { 
-                    likeButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Suka (${newLikes})`; 
-                    likeButton.classList.add('active');
-                }
-                likeButton.disabled = false;
-            }, 300);
+            const newLikes = await addLikeToThread(threadId); // Menggunakan await
+            if (newLikes !== null) { 
+                likeButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Suka (${newLikes})`; 
+                likeButton.classList.add('active');
+            }
+            likeButton.disabled = false;
         }
 
         const bookmarkButton = event.target.closest('.bookmark-btn');
         if (bookmarkButton) {
-            // [DIUBAH] Tambahkan umpan balik visual
-            bookmarkButton.disabled = true;
-            const bookmarked = toggleBookmark(threadId); 
+            const bookmarked = toggleBookmark(threadId); // Ini tetap sinkron
             updateBookmarkButton(bookmarkButton, bookmarked); 
-            setTimeout(() => { // Sedikit delay agar user melihat perubahannya
-                 bookmarkButton.disabled = false;
-            }, 300);
         }
 
         if (event.target.matches('.comment-form button')) {
             event.preventDefault();
             const textarea = threadContainer.querySelector('.comment-form textarea');
             const commentText = textarea.value.trim();
-            if (commentText) { const sanitizedComment = DOMPurify.sanitize(commentText); const updatedThread = addCommentToThread(threadId, sanitizedComment); if (updatedThread) { renderThreadDetail(updatedThread); } }
+            if (commentText) { 
+                const sanitizedComment = DOMPurify.sanitize(commentText); 
+                const updatedThread = await addCommentToThread(threadId, sanitizedComment); // Menggunakan await
+                if (updatedThread) { 
+                    renderThreadDetail(updatedThread); 
+                }
+            }
         }
     });
-
     function updateBookmarkButton(button, isBookmarkedStatus) {
         button.innerHTML = isBookmarkedStatus ? `<i class="fa-solid fa-bookmark"></i> Disimpan` : `<i class="fa-regular fa-bookmark"></i> Bookmark`;
         button.classList.toggle('active', isBookmarkedStatus);

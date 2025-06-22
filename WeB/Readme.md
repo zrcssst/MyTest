@@ -18,6 +18,9 @@ Proyek ini adalah implementasi frontend untuk sebuah website forum diskusi yang 
 ## Struktur Kode
 /forum-website/
 ├── index.html                # Halaman utama (daftar thread)
+├── bookmark.html             # Halaman Bookmark
+├── Profil.html               # Halaman Profil
+├── Login.html                # Halaman Login               
 ├── thread.html               # Halaman detail thread (template)
 ├── create-thread.html        # Form untuk membuat thread baru
 ├── /css/
@@ -27,6 +30,10 @@ Proyek ini adalah implementasi frontend untuk sebuah website forum diskusi yang 
 ├── /js/
 │   ├── main.js               # Logika utama, manipulasi DOM, render data
 │   ├── api.js                # Simulasi API, manajemen data via localStorage
+│   ├── global.js
+    ├── thread-detail.js
+    ├── profile.js
+    ├── utils.js         
 │   └── validation.js         # Fungsi utilitas untuk validasi form
 ├── /assets/
 └── README.md

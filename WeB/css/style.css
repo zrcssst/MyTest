@@ -151,3 +151,85 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .notification-footer:hover {
     background-color: var(--background-primary);
 }
+/* [BARU] Style khusus untuk halaman profil */
+.profile-threads { margin-top: 2rem; }
+.profile-threads h2 { margin-bottom: 1rem; }
+.profile-thread-item {
+    background-color: var(--background-secondary);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    transition: all 0.2s ease;
+}
+.profile-thread-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+}
+.profile-thread-item a {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+ .profile-thread-item a:hover {
+    color: var(--primary-color);
+}
+.profile-thread-item time {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* Style untuk header profil dan statistik */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background-color: var(--background-secondary);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.profile-avatar {
+    font-size: 3rem;
+    width: 80px;
+    height: 80px;
+    background-color: var(--background-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--primary-color);
+}
+
+.profile-info h1 {
+    margin-bottom: 0.25rem;
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.stat-item {
+    background-color: var(--background-secondary);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.stat-item h3 {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-item p {
+    font-size: 1.5rem;
+    font-weight: 600;
+}

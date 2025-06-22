@@ -71,12 +71,12 @@
         </div>
     </footer>
     
-   <script src="js/global.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
-<script src="js/validation.js"></script>
-<script src="js/api.js"></script>
-<script>
-    document.getElementById('create-thread-form').addEventListener('submit', function(event) {
+    <script src="js/global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+    document.getElementById('create-thread-form').addEventListener('submit', async function(event) { // Menjadi async
         event.preventDefault();
         const titleInput = document.getElementById('thread-title');
         const contentInput = document.getElementById('thread-content');
@@ -99,7 +99,7 @@
         }
 
         // Lanjutkan hanya jika semua field valid
-        if (isTitleValid && isContentValid && isCategoryValid) {
+       if (isTitleValid && isContentValid && isCategoryValid) {
             const currentUser = getCurrentUser();
             const newThread = {
                 title: titleInput.value,
@@ -112,7 +112,7 @@
                 likes: 0,
                 comments: []
             };
-            saveNewThread(newThread);
+            await saveNewThread(newThread); // Menggunakan await
             window.location.href = 'index.html?status=thread_created';
         }
     });

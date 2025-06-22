@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageTitle = document.getElementById('page-title');
     let state = { sort: 'terbaru', category: 'all' };
 
+    
     const renderLoadingSkeletons = () => {
         threadListContainer.innerHTML = '';
         for (let i = 0; i < 3; i++) {
@@ -15,11 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
             threadListContainer.appendChild(card);
         }
     };
-
-    const renderEmptyState = (message) => {
+   const renderEmptyState = (message) => {
         threadListContainer.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>${message}</p></div>`;
     };
-
      const createThreadCard = (thread) => {
         const card = document.createElement('article');
         card.className = 'thread-card';
@@ -44,10 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
         card.append(titleLink, metaDiv, statsDiv);
         return card;
     };
+    const renderThreads = async (keyword = '') => { // Menjadi async
+        let allThreads = await getThreads(); // Menggunakan await
+        let threads;
 
+        if (isBookmarkPage) {
+            const bookmarks = getBookmarks();
+            threads = allThreads.filter(t => bookmarks.includes(t.id));
+        } else {
+            threads = allThreads;
+        }
 
-     const renderThreads = (keyword = '') => {
-        let threads = isBookmarkPage ? getThreads().filter(t => getBookmarks().includes(t.id)) : getThreads();
         if (!isBookmarkPage && state.category !== 'all') { threads = threads.filter(t => t.category === state.category); }
         if (keyword) { threads = threads.filter(t => t.title.toLowerCase().includes(keyword)); }
         
@@ -65,8 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         threads.forEach(thread => threadListContainer.appendChild(createThreadCard(thread)));
     };
 
-    if (!isBookmarkPage) {
-        const sortingOptions = document.querySelector('.sorting-options');
+    if (!isBookmarkPage) { const sortingOptions = document.querySelector('.sorting-options');
         sortingOptions.addEventListener('click', (e) => {
             if (e.target.matches('.sort-btn')) {
                 state.sort = e.target.dataset.sort;
@@ -75,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderThreads(searchInput.value);
             }
         });
-        const categoryList = document.querySelector('.category-list');
+ const categoryList = document.querySelector('.category-list');
         categoryList.addEventListener('click', (e) => {
             if (e.target.matches('.category-link')) {
                 e.preventDefault();
@@ -87,37 +92,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    function renderStats() {
+    const renderStats = async () => { // Menjadi async
         if (isBookmarkPage || !document.getElementById('stats-threads')) return;
-        const stats = getForumStats();
+        const stats = await getForumStats(); // Menggunakan await
         document.getElementById('stats-threads').textContent = `Threads: ${stats.threads}`;
         document.getElementById('stats-comments').textContent = `Komentar: ${stats.comments}`;
         document.getElementById('stats-users').textContent = `Pengguna: ${stats.users}`;
     }
 
-
-    function showNotification() {
-        const params = new URLSearchParams(window.location.search);
+    const showNotification = () => {const params = new URLSearchParams(window.location.search);
         if (params.get('status') === 'thread_created') {
             const banner = document.getElementById('notification-banner');
             banner.textContent = 'Thread baru berhasil dipublikasikan!';
             banner.classList.add('show');
             setTimeout(() => { banner.classList.remove('show'); window.history.replaceState({}, document.title, window.location.pathname); }, 4000);
         }
-    }
+    };
     
-   renderLoadingSkeletons();
-    showNotification();
+    // --- Inisialisasi Halaman ---
+    const initializePage = async () => {
+        renderLoadingSkeletons();
+        showNotification();
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const searchQuery = urlParams.get('search');
+        const urlParams = new URLSearchParams(window.location.search);
+        const searchQuery = urlParams.get('search');
 
-    if (searchQuery) {
-        searchInput.value = searchQuery; // Isi kolom pencarian dengan query dari URL
-    }
+        if (searchQuery) {
+            searchInput.value = searchQuery;
+        }
 
-    setTimeout(() => {
-        renderThreads(searchQuery ? searchQuery.toLowerCase() : ''); // Gunakan query dari URL untuk render awal
-        renderStats();
-    } , 300);
+        await renderThreads(searchQuery ? searchQuery.toLowerCase() : '');
+        await renderStats();
+    };
+
+    initializePage();
 });

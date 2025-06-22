@@ -52,14 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     // --- Logika Dropdown Notifikasi ---
-      const bell = document.getElementById('notification-bell');
+    const bell = document.getElementById('notification-bell');
     const dropdown = document.getElementById('notification-dropdown');
     if (bell && dropdown) {
-        const renderNotifications = () => {
+        const renderNotifications = async () => { // Menjadi async
             const contentContainer = dropdown.querySelector('.notification-dropdown-content');
             contentContainer.innerHTML = '<div class="notification-item">Memuat...</div>';
             
-            const notifications = getNotifications();
+            const notifications = await getNotifications(); // Menggunakan await
 
             if (notifications && notifications.length > 0) {
                 contentContainer.innerHTML = notifications.map(notif => `
@@ -73,11 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        document.addEventListener('click', (e) => {
+       document.addEventListener('click', (e) => {
             if (bell.contains(e.target)) {
                 const isDropdownVisible = dropdown.classList.contains('show');
                 if (!isDropdownVisible) {
-                    renderNotifications();
+                    renderNotifications(); // Panggil fungsi async
                 }
                 dropdown.classList.toggle('show');
                 return; 
