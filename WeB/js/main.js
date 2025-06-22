@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return span;
         };
         const tagSpan = document.createElement('span');
-        tagSpan.className = `thread-card__tag thread-card__tag--${thread.category}`;
-        tagSpan.textContent = thread.category;
+        tagSpan.className = `thread-card__tag thread-card__tag--${thread.category || 'umum'}`; // Fallback ke 'umum' jika kategori kosong
+        tagSpan.textContent = thread.category || 'umum';
         statsDiv.append( createStatSpan('fa-regular fa-eye', thread.views || 0), createStatSpan('fa-regular fa-thumbs-up', thread.likes), createStatSpan('fa-regular fa-comment', thread.commentsCount), tagSpan );
         card.append(titleLink, metaDiv, statsDiv);
         return card;
@@ -114,11 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { banner.classList.remove('show'); window.history.replaceState({}, document.title, window.location.pathname); }, 4000);
         }
     }
+    
+    // [DIPERBAIKI] Memperbaiki urutan render untuk user experience yang lebih baik
+    // 1. Tampilkan animasi loading skeleton terlebih dahulu.
+    renderLoadingSkeletons();
+    showNotification(); // Notifikasi bisa ditampilkan segera
 
-   renderLoadingSkeletons();
-showNotification(); 
-setTimeout(() => {  
-    renderThreads();
-    renderStats();
-}, 300); 
+    // 2. Gunakan setTimeout untuk menyimulasikan pengambilan data dari server.
+    setTimeout(() => {
+        // 3. Setelah jeda, render konten thread dan statistik.
+        renderThreads();
+        renderStats();
+    }, 300); // Jeda 300ms untuk efek loading
 });
