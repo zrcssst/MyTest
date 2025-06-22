@@ -11,15 +11,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .navbar__search input { width: 100%; padding: 0.5rem 2.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--background-primary); color: var(--text-primary); }
 .navbar__search i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); }
 .navbar__menu { display: flex; align-items: center; gap: var(--spacing-md); }
-.navbar__link { text-decoration: none; color: var(--text-secondary); font-weight: 500; transition: color 0.2s; font-size: 1.2rem; }
+.navbar__link { background: none; border: none; text-decoration: none; color: var(--text-secondary); font-weight: 500; transition: color 0.2s; font-size: 1.2rem; cursor: pointer; }
 .navbar__link:hover, .navbar__link.active { color: var(--primary-color); }
 .navbar__theme-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; }
 .navbar__user-section { display: flex; align-items: center; gap: 1rem; }
-.navbar__username { font-weight: 500; }
-.btn { padding: 0.6rem 1.2rem; border: 1px solid transparent; border-radius: var(--border-radius); cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.navbar__user-section .navbar__username { text-decoration: none; color: var(--text-primary); font-weight: 500; }
+.navbar__user-section .navbar__username:hover { color: var(--primary-color); }
+.btn { padding: 0.6rem 1.2rem; border: 1px solid transparent; border-radius: var(--border-radius); cursor: pointer; font-weight: 600; text-decoration: none; transition: all 0.2s; }
 .btn--primary { background-color: var(--primary-color); color: white; }
 .btn--secondary { background-color: transparent; color: var(--text-secondary); border-color: var(--border-color); }
-.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-decoration: none; }
+button:disabled { cursor: not-allowed; background-color: var(--text-secondary) !important; opacity: 0.7; }
 .page-layout { display: flex; flex-wrap: wrap; gap: var(--spacing-lg); margin-top: var(--spacing-lg); }
 .main-content { flex: 3; min-width: 300px; }
 .sidebar { flex: 1; min-width: 250px; }
@@ -69,167 +71,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .footer__links { margin-top: 0.5rem; display: flex; justify-content: center; gap: var(--spacing-md); }
 .footer__links a { color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
 .footer__links a:hover { color: var(--primary-color); }
-.notification-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.notification-dropdown {
-    position: absolute;
-    top: calc(100% + 1rem); /* Muncul tepat di bawah ikon lonceng */
-    right: 0;
-    width: 340px;
-    background-color: var(--background-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    box-shadow: var(--card-shadow);
-    z-index: 1010;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-}
-
-.notification-dropdown.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.notification-header,
-.notification-footer {
-    padding: 0.75rem var(--spacing-md);
-    font-weight: 600;
-}
-
-.notification-header {
-    border-bottom: 1px solid var(--border-color);
-    font-size: 1rem;
-}
-
-.notification-dropdown-content {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.notification-item {
-    padding: var(--spacing-md);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
-}
-
-.notification-item:last-child {
-    border-bottom: none;
-}
-
-.notification-item i {
-    color: var(--info-color);
-    margin-top: 4px;
-}
-
-.notification-item p {
-    line-height: 1.4;
-    color: var(--text-primary);
-}
-.notification-item strong {
-    color: var(--primary-color);
-}
-
-.notification-footer {
-    border-top: 1px solid var(--border-color);
-    font-size: 0.85rem;
-    text-align: center;
-    cursor: pointer;
-    color: var(--primary-color);
-    transition: background-color 0.2s;
-}
-
-.notification-footer:hover {
-    background-color: var(--background-primary);
-}
-/* [BARU] Style khusus untuk halaman profil */
-.profile-threads { margin-top: 2rem; }
-.profile-threads h2 { margin-bottom: 1rem; }
-.profile-thread-item {
-    background-color: var(--background-secondary);
-    border: 1px solid var(--border-color);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    margin-bottom: 1rem;
-    transition: all 0.2s ease;
-}
-.profile-thread-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
-}
-.profile-thread-item a {
-    font-weight: 600;
-    color: var(--text-primary);
-    text-decoration: none;
-}
- .profile-thread-item a:hover {
-    color: var(--primary-color);
-}
-.profile-thread-item time {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    display: block;
-    margin-top: 0.25rem;
-}
-
-/* Style untuk header profil dan statistik */
-.profile-header {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    background-color: var(--background-secondary);
-    padding: 2rem;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
-}
-
-.profile-avatar {
-    font-size: 3rem;
-    width: 80px;
-    height: 80px;
-    background-color: var(--background-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: var(--primary-color);
-}
-
-.profile-info h1 {
-    margin-bottom: 0.25rem;
-}
-
-.profile-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin-top: 2rem;
-    text-align: center;
-}
-
-.stat-item {
-    background-color: var(--background-secondary);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border-color);
-}
-
-.stat-item h3 {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-}
-
-.stat-item p {
-    font-size: 1.5rem;
-    font-weight: 600;
-}
+.notification-container { position: relative; }
+.notification-dropdown { display: none; position: absolute; top: 150%; right: 0; width: 300px; background-color: var(--background-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius); box-shadow: var(--card-shadow); z-index: 1003; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: opacity 0.2s ease, transform 0.2s ease; }
+.notification-dropdown.show { display: block; opacity: 1; visibility: visible; transform: translateY(0); }
+.notification-header, .notification-footer { padding: 0.75rem; font-weight: 600; border-bottom: 1px solid var(--border-color); }
+.notification-footer { border-top: 1px solid var(--border-color); border-bottom: none; text-align: center; cursor: pointer; color: var(--primary-color); font-size: 0.9rem; }
+.notification-item { padding: 0.75rem; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; }
+.notification-item:last-of-type { border-bottom: none; }
+.notification-item:hover { background-color: var(--background-primary); }
+.profile-header { display: flex; align-items: center; gap: 2rem; margin: 2rem 0; background-color: var(--background-secondary); padding: 2rem; border-radius: var(--border-radius); }
+.profile-avatar { font-size: 4rem; width: 100px; height: 100px; border-radius: 50%; background-color: var(--background-primary); display: flex; justify-content: center; align-items: center; color: var(--primary-color); }
+.profile-info h1 { font-size: 2.5rem; margin: 0; }
+.profile-info p { color: var(--text-secondary); }
+.profile-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+.stat-item { background-color: var(--background-secondary); padding: 1.5rem; text-align: center; border-radius: var(--border-radius); }
+.stat-item h3 { font-size: 1rem; color: var(--text-secondary); }
+.stat-item p { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+.skeleton { animation: skeleton-loading 1.2s linear infinite alternate; }
+@keyframes skeleton-loading { 0% { background-color: hsl(200, 20%, 85%); } 100% { background-color: hsl(200, 20%, 95%); } }
+[data-theme='dark'] .skeleton { animation: skeleton-loading-dark 1.2s linear infinite alternate; }
+@keyframes skeleton-loading-dark { 0% { background-color: hsl(210, 10%, 25%); } 100% { background-color: hsl(210, 10%, 40%); } }
+.skeleton-card { background-color: var(--background-secondary); border-radius: var(--border-radius); padding: 1.5rem; margin-bottom: 1rem; }
+.skeleton.text { width: 100%; height: 12px; border-radius: 4px; margin-bottom: 0.75rem; }
+.skeleton.title { width: 60%; height: 20px; margin-bottom: 1rem; }
+.empty-state { text-align: center; padding: 3rem; background-color: var(--background-secondary); border-radius: var(--border-radius); border: 1px dashed var(--border-color); }
+.empty-state i { font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.empty-state p { font-weight: 500; color: var(--text-secondary); }

@@ -9,71 +9,40 @@
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/animations.css">
-    <style>
-        /* [BARU] Style khusus untuk halaman profil */
-        .profile-threads { margin-top: 2rem; }
-        .profile-threads h2 { margin-bottom: 1rem; }
-        .profile-thread-item {
-            background-color: var(--background-secondary);
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1rem;
-            transition: all 0.2s ease;
-        }
-        .profile-thread-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--card-shadow);
-        }
-        .profile-thread-item a {
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-        }
-         .profile-thread-item a:hover {
-            color: var(--primary-color);
-        }
-        .profile-thread-item time {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            display: block;
-            margin-top: 0.25rem;
-        }
-    </style>
 </head>
 <body>
     <header class="navbar">
-    <div class="container navbar__container">
-        <a href="index.html" class="navbar__logo">ForumKita</a>
-        <div class="navbar__search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Cari thread...">
-        </div>
-        <nav class="navbar__menu">
-            <a href="index.html" class="navbar__link" title="Home"><i class="fa-solid fa-house"></i></a>
-            <a href="bookmark.html" class="navbar__link" title="Bookmark"><i class="fa-regular fa-bookmark"></i></a>
-            <div class="notification-container">
-                <button id="notification-bell" class="navbar__link" title="Notifikasi"><i class="fa-solid fa-bell"></i></button>
-                <div id="notification-dropdown" class="notification-dropdown">
-                    <div class="notification-header">Notifikasi</div>
-                    <div class="notification-dropdown-content">
-                        <div class="notification-item">Memuat...</div>
-                    </div>
-                    <div class="notification-footer">Tandai sudah dibaca</div>
-                </div>
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">ForumKita</a>
+            <div class="navbar__search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Cari thread...">
             </div>
-            <button id="theme-toggle" class="navbar__theme-btn" title="Ganti Tema"><i class="fa-solid fa-moon"></i></button>
-        </nav>
-        <div id="nav-user-section" class="navbar__user-section"></div>
-    </div>
-</header>
+            <nav class="navbar__menu">
+                <a href="index.html" class="navbar__link" title="Home"><i class="fa-solid fa-house"></i></a>
+                <a href="bookmark.html" class="navbar__link" title="Bookmark"><i class="fa-regular fa-bookmark"></i></a>
+                <div class="notification-container">
+                    <button id="notification-bell" class="navbar__link" title="Notifikasi"><i class="fa-solid fa-bell"></i></button>
+                    <div id="notification-dropdown" class="notification-dropdown">
+                        <div class="notification-header">Notifikasi</div>
+                        <div class="notification-dropdown-content">
+                            <div class="notification-item">Memuat...</div>
+                        </div>
+                        <div class="notification-footer">Tandai sudah dibaca</div>
+                    </div>
+                </div>
+                <button id="theme-toggle" class="navbar__theme-btn" title="Ganti Tema"><i class="fa-solid fa-moon"></i></button>
+            </nav>
+            <div id="nav-user-section" class="navbar__user-section"></div>
+        </div>
+    </header>
 
     <main class="container">
         <div class="profile-header">
             <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>
             <div class="profile-info">
                 <h1 id="profile-name"></h1>
-                <p>Bergabung pada: 19 Juni 2025 (simulasi)</p>
+                <p>Bergabung pada: 22 Juni 2025 (simulasi)</p>
             </div>
         </div>
         <div class="profile-stats">
@@ -92,33 +61,7 @@
     <footer class="footer"><div class="container"><p>&copy; 2025 ForumKita. Semua Hak Cipta Dilindungi.</p></div></footer>
 
     <script src="js/global.js"></script>
-    <script src="js/utils.js"></script> <script src="js/api.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const user = getCurrentUser();
-            if (user) {
-                // Sekarang fungsi getUserProfileData sudah ada
-                const profileData = getUserProfileData(user.name);
-                
-                document.getElementById('profile-name').textContent = profileData.name;
-                document.getElementById('profile-threads-count').textContent = profileData.threadCount;
-                document.getElementById('profile-comments-count').textContent = profileData.commentCount;
-                document.getElementById('profile-likes-count').textContent = profileData.likesReceived;
-
-                // [BARU] Render daftar thread pengguna
-                const threadsListContainer = document.getElementById('user-threads-list');
-                if (profileData.threads.length > 0) {
-                    threadsListContainer.innerHTML = profileData.threads.map(thread => `
-                        <div class="profile-thread-item">
-                            <a href="thread.html?id=${thread.id}">${thread.title}</a>
-                            <time>${formatDisplayDate(thread.timestamp)}</time>
-                        </div>
-                    `).join('');
-                } else {
-                    threadsListContainer.innerHTML = '<p>Anda belum membuat thread apapun.</p>';
-                }
-            }
-        });
-    </script>
-</body>
+    <script src="js/utils.js"></script> 
+    <script src="js/api.js"></script>
+    <script src="js/profile.js"></script> </body>
 </html>
