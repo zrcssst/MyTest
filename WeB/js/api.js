@@ -19,4 +19,43 @@ function getBookmarks() { return JSON.parse(localStorage.getItem('bookmarks')) |
 function toggleBookmark(threadId) { let b = getBookmarks(); const i=b.indexOf(threadId); if(i===-1){b.push(threadId);}else{b.splice(i,1);} localStorage.setItem('bookmarks',JSON.stringify(b)); return i===-1; }
 function isBookmarked(threadId) { return getBookmarks().includes(threadId); }
 function getForumStats() { const t = getThreads(); const c=t.reduce((s,th)=>s+th.commentsCount,0); return {threads:t.length,comments:c,users:MOCK_USERS_COUNT};}
+
+/**
+ * **[BARU]** Fungsi untuk mengambil data profil pengguna.
+ * Menghitung jumlah thread, komentar, dan total suka yang diterima oleh pengguna.
+ */
+function getUserProfileData(username) {
+    const allThreads = getThreads();
+    const userThreads = allThreads.filter(t => t.author === username);
+    
+    let commentCount = 0;
+    allThreads.forEach(thread => {
+        if (thread.comments && Array.isArray(thread.comments)) {
+            commentCount += thread.comments.filter(c => c.author === username).length;
+        }
+    });
+
+    const likesReceived = userThreads.reduce((total, thread) => total + thread.likes, 0);
+
+    return {
+        name: username,
+        threadCount: userThreads.length,
+        commentCount: commentCount,
+        likesReceived: likesReceived,
+        threads: userThreads // Mengembalikan juga daftar thread yang dibuat
+    };
+}
+
+/**
+ * **[BARU]** Fungsi untuk mengambil notifikasi (simulasi).
+ */
+function getNotifications() {
+    // Ini adalah data simulasi, di dunia nyata ini akan berasal dari server.
+    return [
+        { id: 1, message: 'Bunga berkomentar di thread "Rekomendasi buku...".' },
+        { id: 2, message: 'Thread Anda "Tips & Trik Optimasi" mendapatkan suka baru.' },
+        { id: 3, message: 'Selamat datang di ForumKita! Jangan ragu untuk memulai diskusi.' }
+    ];
+}
+
 initializeData();

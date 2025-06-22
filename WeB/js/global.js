@@ -10,18 +10,48 @@ document.addEventListener('DOMContentLoaded', () => {
             navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
         }
     }
-    document.body.addEventListener('click', (e) => { if (e.target.id === 'logout-btn') logout(); });
+    
+    // Listener untuk tombol logout dengan konfirmasi **[DIUBAH]**
+    document.body.addEventListener('click', (e) => { 
+        if (e.target.id === 'logout-btn') {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                logout();
+            }
+        }
+    });
 
-    // Manajer Notifikasi
+    // Manajer Notifikasi **[DIUBAH]**
     const bell = document.getElementById('notification-bell');
     const dropdown = document.getElementById('notification-dropdown');
+    
+    const renderNotifications = () => {
+        const notifications = getNotifications(); // Mengambil notifikasi dari API
+        const dropdownContent = dropdown.querySelector('.notification-dropdown-content');
+        
+        if (notifications.length === 0) {
+            dropdownContent.innerHTML = '<div class="notification-item">Tidak ada notifikasi baru.</div>';
+            return;
+        }
+        
+        dropdownContent.innerHTML = notifications.map(notif => 
+            `<div class="notification-item">${notif.message}</div>`
+        ).join('');
+    };
+
     if (bell && dropdown) {
-        bell.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); });
+        bell.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            dropdown.classList.toggle('show');
+            if (dropdown.classList.contains('show')) {
+                renderNotifications(); // Render notifikasi saat dropdown dibuka
+            }
+        });
         document.addEventListener('click', () => dropdown.classList.remove('show'));
         dropdown.addEventListener('click', (e) => e.stopPropagation());
     }
-    document.body.addEventListener('click', (event) => { if (event.target.id === 'logout-btn') { logout(); } });
-     const themeToggleButton = document.getElementById('theme-toggle');
+
+    // Manajer Tema
+    const themeToggleButton = document.getElementById('theme-toggle');
     if (themeToggleButton) {
         const applyTheme = () => {
             const currentTheme = localStorage.getItem('theme');
@@ -33,7 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeToggleButton.innerHTML = '<i class="fa-solid fa-moon"></i>';
             }
         };
-         themeToggleButton.addEventListener('click', () => {
+
+        themeToggleButton.addEventListener('click', () => {
             let currentTheme = document.documentElement.getAttribute('data-theme');
             if (currentTheme === 'dark') {
                 localStorage.removeItem('theme');

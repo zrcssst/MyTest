@@ -14,9 +14,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     threadContainer.addEventListener('click', function(event) {
         const likeButton = event.target.closest('.like-btn');
-        if (likeButton) { const newLikes = addLikeToThread(threadId); if (newLikes !== null) { likeButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Suka (${newLikes})`; likeButton.classList.add('active'); } }
+        if (likeButton) {
+            // [DIUBAH] Tambahkan umpan balik visual
+            likeButton.disabled = true;
+            likeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses...`;
+            setTimeout(() => { // Simulasi delay jaringan
+                const newLikes = addLikeToThread(threadId); 
+                if (newLikes !== null) { 
+                    likeButton.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Suka (${newLikes})`; 
+                    likeButton.classList.add('active');
+                }
+                likeButton.disabled = false;
+            }, 300);
+        }
+
         const bookmarkButton = event.target.closest('.bookmark-btn');
-        if (bookmarkButton) { const bookmarked = toggleBookmark(threadId); updateBookmarkButton(bookmarkButton, bookmarked); }
+        if (bookmarkButton) {
+            // [DIUBAH] Tambahkan umpan balik visual
+            bookmarkButton.disabled = true;
+            const bookmarked = toggleBookmark(threadId); 
+            updateBookmarkButton(bookmarkButton, bookmarked); 
+            setTimeout(() => { // Sedikit delay agar user melihat perubahannya
+                 bookmarkButton.disabled = false;
+            }, 300);
+        }
+
         if (event.target.matches('.comment-form button')) {
             event.preventDefault();
             const textarea = threadContainer.querySelector('.comment-form textarea');
