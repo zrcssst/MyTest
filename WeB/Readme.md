@@ -16,28 +16,33 @@ Proyek ini adalah implementasi frontend untuk sebuah website forum diskusi yang 
 -   Keamanan input frontend dengan DOMPurify.
 
 ## Struktur Kode
+```
 /forum-website/
 ├── index.html                # Halaman utama (daftar thread)
 ├── bookmark.html             # Halaman Bookmark
 ├── Profil.html               # Halaman Profil
-├── Login.html                # Halaman Login               
+├── Login.html                # Halaman Login
 ├── thread.html               # Halaman detail thread (template)
 ├── create-thread.html        # Form untuk membuat thread baru
+├── /templates/               # [BARU] Potongan HTML untuk komponen
+│   ├── navbar.html           # Template untuk navigasi
+│   └── footer.html           # Template untuk footer
 ├── /css/
 │   ├── style.css             # Styling global, layout, komponen
 │   ├── themes.css            # Variabel warna untuk tema gelap/terang
 │   └── animations.css        # Animasi dan transisi
 ├── /js/
-│   ├── main.js               # Logika utama, manipulasi DOM, render data
 │   ├── api.js                # Simulasi API, manajemen data via localStorage
-│   ├── global.js
-    ├── thread-detail.js
-    ├── profile.js
-    ├── utils.js         
+│   ├── global.js             # Skrip global & inisialisasi navbar
+│   ├── templating.js         # [BARU] Logika untuk memuat template
+│   ├── main.js               # Logika utama untuk halaman index
+│   ├── thread-detail.js      # Logika untuk halaman detail thread
+│   ├── profile.js            # Logika untuk halaman profil
+│   ├── utils.js              # Fungsi bantuan umum (misal: format tanggal)
 │   └── validation.js         # Fungsi utilitas untuk validasi form
 ├── /assets/
 └── README.md
-
+```
 
 ## Instalasi & Menjalankan Proyek Lokal
 
