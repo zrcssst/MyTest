@@ -1,58 +1,49 @@
-// js/bookmark.js
+// js/bookmark.js (Versi setelah refactor)
+
+import { getAllThreads, getBookmarks } from './api.js';
+import { createThreadCard } from './components.js'; // <-- [BARU] Impor dari file komponen
+import { loadNavbar, loadFooter } from './templating.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
+    // Muat komponen navbar dan footer
+    await loadNavbar();
+    await loadFooter();
+
     const threadListContainer = document.getElementById('thread-list-container');
+    const loadingSpinner = `<div class="loading-spinner"></div>`; // Opsi loading
 
     const renderEmptyState = (message) => {
         threadListContainer.innerHTML = `<div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>${message}</p></div>`;
     };
 
-    const createThreadCard = (thread) => {
-        const card = document.createElement('article');
-        card.className = 'thread-card';
-
-        const titleLink = document.createElement('a');
-        titleLink.href = `thread.html?id=${thread.id}`;
-        titleLink.className = 'thread-card__title';
-        titleLink.textContent = thread.title;
-        const metaDiv = document.createElement('div');
-        metaDiv.className = 'thread-card__meta';
-        metaDiv.innerHTML = `<span>Oleh <strong>${thread.author}</strong></span> • <time>${formatDisplayDate(thread.timestamp)}</time>`;
-        const statsDiv = document.createElement('div');
-        statsDiv.className = 'thread-card__stats';
-        const createStatSpan = (iconClass, text) => {
-            const span = document.createElement('span');
-            span.innerHTML = `<i class="${iconClass}"></i> ${text}`;
-            return span;
-        };
-        const tagSpan = document.createElement('span');
-        tagSpan.className = `thread-card__tag thread-card__tag--${thread.category || 'umum'}`;
-        tagSpan.textContent = thread.category || 'umum';
-        statsDiv.append(
-            createStatSpan('fa-regular fa-eye', thread.views || 0),
-            createStatSpan('fa-regular fa-thumbs-up', thread.likes),
-            createStatSpan('fa-regular fa-comment', thread.commentsCount),
-            tagSpan
-        );
-        card.append(titleLink, metaDiv, statsDiv);
-        return card;
-    };
-
     const renderBookmarkedThreads = (threads) => {
-        threadListContainer.innerHTML = '';
+        threadListContainer.innerHTML = ''; // Kosongkan container
         if (threads.length === 0) {
-            renderEmptyState('Anda belum menyimpan bookmark.');
+            renderEmptyState('Anda belum menyimpan bookmark apapun.');
             return;
         }
-        threads.forEach(thread => threadListContainer.appendChild(createThreadCard(thread)));
+        threads.forEach(thread => {
+            const card = createThreadCard(thread); // <-- Sekarang menggunakan fungsi yang diimpor
+            threadListContainer.appendChild(card);
+        });
     };
     
     const initializeBookmarkPage = async () => {
-        threadListContainer.innerHTML = ''; // Tampilkan loading jika perlu
-        const allThreads = await getThreads();
-        const bookmarkedIds = getBookmarks();
-        const bookmarkedThreads = allThreads.filter(t => bookmarkedIds.includes(t.id));
-        
-        renderBookmarkedThreads(bookmarkedThreads);
+        threadListContainer.innerHTML = loadingSpinner; // Tampilkan loading
+        try {
+            const allThreads = await getAllThreads();
+            const bookmarkedIds = getBookmarks();
+            
+            // Filter threads yang ID-nya ada di dalam daftar bookmark
+            const bookmarkedThreads = allThreads
+                .filter(thread => bookmarkedIds.includes(thread.id))
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // Urutkan dari yang terbaru
+
+            renderBookmarkedThreads(bookmarkedThreads);
+        } catch (error) {
+            console.error("Gagal memuat bookmark:", error);
+            renderEmptyState('Gagal memuat data bookmark. Silakan coba lagi.');
+        }
     };
 
     initializeBookmarkPage();

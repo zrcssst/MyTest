@@ -1,17 +1,13 @@
-// js/main.js (Versi Final yang Sudah Diperbaiki)
+// js/main.js (Versi setelah refactor)
 
 import { getThreads, getForumStats } from './api.js';
-import { formatDisplayDate } from './utils.js';
-import { debounce } from './utils.js';
-import { loadNavbar, loadFooter } from './templating.js';
+import { debounce, formatDisplayDate } from './utils.js';
 import { renderLoadingSkeletons, renderEmptyState, showError } from './ui.js';
+import { createThreadCard } from './components.js'; // <-- [BARU] Impor dari file komponen
 
 // Fungsi untuk inisialisasi halaman utama
-async function initializePage() {
-    // Muat komponen global terlebih dahulu
-    await loadNavbar();
-    await loadFooter();
-    showNotificationBanner(); // Panggil notifikasi setelah navbar dimuat
+async function initializeMainPage() {
+    showNotificationBanner();
 
     // State aplikasi
     const state = {
@@ -19,7 +15,7 @@ async function initializePage() {
         category: 'all',
         keyword: '',
         currentPage: 1,
-        totalPages: 1,
+        itemsPerPage: 10
     };
 
     // Elemen DOM
@@ -27,132 +23,138 @@ async function initializePage() {
     const searchInput = document.getElementById('searchInput');
     const pageTitle = document.getElementById('page-title');
     const paginationContainer = document.getElementById('pagination-container');
+    const sortButtonsContainer = document.querySelector('.sorting-options');
+    const categoryLinksContainer = document.querySelector('.category-list');
 
-    const createThreadCard = (thread) => {
-        const card = document.createElement('article');
-        card.className = 'thread-card';
-        const titleLink = document.createElement('a');
-        titleLink.href = `thread.html?id=${thread.id}`;
-        titleLink.className = 'thread-card__title';
-        titleLink.textContent = thread.title;
-        const metaDiv = document.createElement('div');
-        metaDiv.className = 'thread-card__meta';
-        metaDiv.innerHTML = `<span>Oleh <strong>${thread.author}</strong></span> • <time>${formatDisplayDate(thread.timestamp)}</time>`;
-        const statsDiv = document.createElement('div');
-        statsDiv.className = 'thread-card__stats';
-        const createStatSpan = (iconClass, text) => {
-            const span = document.createElement('span');
-            span.innerHTML = `<i class="${iconClass}"></i> ${text}`;
-            return span;
-        };
-        const tagSpan = document.createElement('span');
-        tagSpan.className = `thread-card__tag thread-card__tag--${thread.category || 'umum'}`;
-        tagSpan.textContent = thread.category || 'umum';
-        statsDiv.append(
-            createStatSpan('fa-regular fa-eye', thread.views || 0),
-            createStatSpan('fa-regular fa-thumbs-up', thread.likes),
-            createStatSpan('fa-regular fa-comment', thread.commentsCount),
-            tagSpan
-        );
-        card.append(titleLink, metaDiv, statsDiv);
-        return card;
-    };
+    // [DIHAPUS] Fungsi createThreadCard yang lama sudah dihapus dari sini
 
-     const renderThreads = (threads) => {
+    const renderThreads = (threads) => {
         threadListContainer.innerHTML = '';
         if (threads.length === 0) {
             renderEmptyState(threadListContainer, 'Tidak ada thread yang cocok dengan kriteria Anda.');
             return;
         }
         threads.forEach(thread => {
-            const card = createThreadCard(thread); // Anda perlu memastikan fungsi ini ada
+            const card = createThreadCard(thread); // <-- Sekarang menggunakan fungsi yang diimpor
             threadListContainer.appendChild(card);
         });
     };
     
-    const renderPagination = () => {
+    const renderPagination = (totalPages) => {
         if (!paginationContainer) return;
         paginationContainer.innerHTML = '';
-        if (state.totalPages <= 1) return;
+        if (totalPages <= 1) return;
 
-        // Tombol "Sebelumnya"
-        const prevButton = document.createElement('button');
-        prevButton.innerHTML = '&laquo;';
-        prevButton.className = 'pagination__btn';
-        prevButton.disabled = state.currentPage === 1;
-        prevButton.addEventListener('click', () => {
-            if (state.currentPage > 1) {
-                state.currentPage--;
+        const createButton = (text, page, isDisabled = false) => {
+            const button = document.createElement('button');
+            button.innerHTML = text;
+            button.className = 'pagination__btn';
+            button.disabled = isDisabled;
+            if (page === state.currentPage) button.classList.add('active');
+            button.addEventListener('click', () => {
+                state.currentPage = page;
                 fetchAndRenderThreads();
-            }
-        });
-        paginationContainer.appendChild(prevButton);
-
-        // Tombol Angka Halaman
-        for (let i = 1; i <= state.totalPages; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.textContent = i;
-            pageButton.className = 'pagination__btn';
-            if (i === state.currentPage) {
-                pageButton.classList.add('active');
-            }
-            pageButton.addEventListener('click', () => {
-                state.currentPage = i;
-                fetchAndRenderThreads();
+                window.scrollTo(0, 0);
             });
-            paginationContainer.appendChild(pageButton);
+            return button;
+        };
+        
+        paginationContainer.appendChild(createButton('&laquo;', state.currentPage - 1, state.currentPage === 1));
+        for (let i = 1; i <= totalPages; i++) {
+            paginationContainer.appendChild(createButton(i, i));
         }
-
-        // Tombol "Berikutnya"
-        const nextButton = document.createElement('button');
-        nextButton.innerHTML = '&raquo;';
-        nextButton.className = 'pagination__btn';
-        nextButton.disabled = state.currentPage === state.totalPages;
-        nextButton.addEventListener('click', () => {
-            if (state.currentPage < state.totalPages) {
-                state.currentPage++;
-                fetchAndRenderThreads();
-            }
-        });
-        paginationContainer.appendChild(nextButton);
+        paginationContainer.appendChild(createButton('&raquo;', state.currentPage + 1, state.currentPage === totalPages));
     };
 
-    // Fungsi utama untuk mengambil dan merender data
     async function fetchAndRenderThreads() {
         renderLoadingSkeletons(threadListContainer);
-        paginationContainer.innerHTML = ''; // Kosongkan paginasi saat loading
-
+        paginationContainer.innerHTML = '';
         try {
-            // NOTE: API pencarian & filter sisi server belum ada, jadi kita simulasikan di sini
-            // Di dunia nyata, parameter state.sort, state.category, state.keyword akan dikirim ke API
-            const { threads, currentPage, totalPages } = await getThreads({ page: state.currentPage });
-            
-            // Simulasikan filter dan sort di client-side
-            let threadsToRender = threads; // Nanti diubah jika ada filter/sort
+            let allThreads = await getAllThreads(); // Menggunakan getAllThreads untuk filter client-side
 
-            renderThreads(threadsToRender);
+            if (state.category !== 'all') {
+                allThreads = allThreads.filter(t => t.category === state.category);
+            }
+            if (state.keyword) {
+                const lowerKeyword = state.keyword.toLowerCase();
+                allThreads = allThreads.filter(t => t.title.toLowerCase().includes(lowerKeyword) || t.author.toLowerCase().includes(lowerKeyword));
+            }
+            if (state.sort === 'populer') {
+                allThreads.sort((a, b) => (b.likes + b.commentsCount) - (a.likes + a.commentsCount));
+            } else if (state.sort === 'trending') {
+                allThreads.sort((a, b) => b.views - a.views);
+            } else {
+                allThreads.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            }
             
-            state.currentPage = currentPage;
-            state.totalPages = totalPages;
-            renderPagination();
-
+            const totalPages = Math.ceil(allThreads.length / state.itemsPerPage);
+            const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+            const paginatedThreads = allThreads.slice(startIndex, startIndex + state.itemsPerPage);
+            
+            renderThreads(paginatedThreads);
+            renderPagination(totalPages);
         } catch (error) {
             showError('memuat threads', error);
             renderEmptyState(threadListContainer, 'Gagal memuat data. Periksa koneksi Anda.');
         }
     }
 
-    // ... (Event Listeners untuk sort, category, search) ...
-    // Event listener harus memanggil fetchAndRenderThreads() setelah mengubah state
+    // Event Listeners
+    sortButtonsContainer.addEventListener('click', (e) => {
+        if (e.target.matches('.sort-btn')) {
+            sortButtonsContainer.querySelector('.active').classList.remove('active');
+            e.target.classList.add('active');
+            state.sort = e.target.dataset.sort;
+            state.currentPage = 1;
+            fetchAndRenderThreads();
+        }
+    });
+    categoryLinksContainer.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (e.target.matches('.category-link')) {
+            categoryLinksContainer.querySelector('.active').classList.remove('active');
+            e.target.classList.add('active');
+            state.category = e.target.dataset.category;
+            state.currentPage = 1;
+            pageTitle.textContent = e.target.textContent;
+            fetchAndRenderThreads();
+        }
+    });
+    searchInput.addEventListener('input', debounce((e) => {
+        state.keyword = e.target.value.trim();
+        state.currentPage = 1;
+        fetchAndRenderThreads();
+    }, 400));
 
-    // Inisialisasi awal
     fetchAndRenderThreads();
-    renderStats(); // Panggil fungsi render statistik
+    renderStats();
 }
 
-// Helper functions (di luar initializePage jika perlu)
-function showNotificationBanner() { /* ... logika notifikasi ... */ }
-async function renderStats() { /* ... logika statistik ... */ }
+// Helper functions
+function showNotificationBanner() {
+    const banner = document.getElementById('notification-banner');
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('status') === 'thread_created') {
+        banner.textContent = 'Thread baru berhasil dipublikasikan!';
+        banner.classList.add('show');
+        setTimeout(() => {
+            banner.classList.remove('show');
+            // Hapus parameter dari URL tanpa reload
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }, 4000);
+    }
+}
 
-// Jalankan inisialisasi
-document.addEventListener('DOMContentLoaded', initializePage);
+async function renderStats() {
+    try {
+        const stats = await getForumStats();
+        document.getElementById('stats-threads').textContent = `Threads: ${stats.totalThreads}`;
+        document.getElementById('stats-comments').textContent = `Komentar: ${stats.totalComments}`;
+        document.getElementById('stats-users').textContent = `Pengguna: ${stats.totalUsers}`;
+    } catch (error) {
+        console.error("Gagal memuat statistik forum:", error);
+    }
+}
+
+// Menjadikan fungsi initializeMainPage global agar bisa dipanggil oleh global.js setelah navbar dimuat
+window.initializeMainPage = initializeMainPage;

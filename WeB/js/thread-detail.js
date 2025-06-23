@@ -1,5 +1,5 @@
 // js/thread-detail.js
-import { getThreadById, addLikeToThread, addDislikeToThread, toggleBookmark, isBookmarked, addCommentToThread } from './api.js';
+import { getThreadById, addLikeToThread, addDislikeToThread, toggleBookmark, isBookmarked, addCommentToThread, incrementViewCount, getCurrentUser } from './api.js';
 import { formatDisplayDate } from './utils.js';
 import { loadNavbar, loadFooter } from './templating.js';
 import { showToast, showError } from './ui.js';
@@ -17,10 +17,22 @@ async function initializePage() {
         return;
     }
 
-    let currentThread;
+    let currentThread; // Variabel untuk menyimpan data thread saat ini
 
+    // Fungsi untuk memperbarui tampilan tombol bookmark
+    const updateBookmarkButton = (button, isCurrentlyBookmarked) => {
+        if (!button) return;
+        if (isCurrentlyBookmarked) {
+            button.classList.add('active');
+            button.innerHTML = '<i class="fa-solid fa-bookmark"></i> Disimpan';
+        } else {
+            button.classList.remove('active');
+            button.innerHTML = '<i class="fa-regular fa-bookmark"></i> Simpan';
+        }
+    };
 
-       function renderThreadDetail(threadData) {
+    // Fungsi untuk merender detail thread
+    function renderThreadDetail(threadData) {
         document.title = `${threadData.title} - ForumKita`;
         const sanitizedContent = DOMPurify.sanitize(threadData.content, { USE_PROFILES: { html: true } });
         const voteScore = (threadData.likes || 0) - (threadData.dislikes || 0);
@@ -30,32 +42,38 @@ async function initializePage() {
                 <div class="thread-card__meta"><span>Oleh <strong>${threadData.author}</strong></span> • <time>${new Date(threadData.timestamp).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' })}</time></div>
                 <div class="thread-full__content">${sanitizedContent}</div>
                 <div class="thread-full__actions">
-                    <button class="btn-action like-btn"><i class="fa-regular fa-thumbs-up"></i></button>
+                    <button class="btn-action like-btn"><i class="fa-regular fa-thumbs-up"></i> Suka</button>
                     <span class="vote-score">${voteScore}</span>
-                    <button class="btn-action dislike-btn"><i class="fa-regular fa-thumbs-down"></i></button>
-                    <button class="btn-action bookmark-btn"></button>
-                    <button class="btn-action"><i class="fa-regular fa-flag"></i> Report</button>
+                    <button class="btn-action dislike-btn"><i class="fa-regular fa-thumbs-down"></i> Tidak Suka</button>
+                    <button class="btn-action bookmark-btn"></button> <button class="btn-action"><i class="fa-regular fa-flag"></i> Laporkan</button>
                 </div>
             </article>
             <section class="comments-section">
                 <h2>${threadData.commentsCount} Komentar</h2>
-                <form class="comment-form"><textarea placeholder="Tulis komentarmu..." rows="4"></textarea><button type="submit" class="btn btn--primary">Kirim Komentar</button></form>
+                <form id="comment-form" class="comment-form">
+                    <textarea id="comment-content" placeholder="Tulis komentarmu di sini..." rows="4" required></textarea>
+                    <button type="submit" class="btn btn--primary">Kirim Komentar</button>
+                </form>
                 <div class="comments-list">${renderComments(threadData.comments)}</div>
             </section>`;
+        
         updateBookmarkButton(threadContainer.querySelector('.bookmark-btn'), isBookmarked(threadId));
     }
 
-  function renderComments(comments) {
-        if (!comments || comments.length === 0) { return '<p>Jadilah yang pertama berkomentar!</p>'; }
-        return comments.slice().reverse().map(comment => {
+    // Fungsi untuk merender daftar komentar
+    function renderComments(comments) {
+        if (!comments || comments.length === 0) { return '<p style="text-align:center; padding: 2rem; color: var(--text-secondary);">Jadilah yang pertama berkomentar!</p>'; }
+        // Komentar terbaru di atas
+        return comments.map(comment => {
             const voteScore = (comment.likes || 0) - (comment.dislikes || 0);
+            const sanitizedComment = DOMPurify.sanitize(comment.content);
             return `
             <div class="comment">
                 <div class="comment__header">
                     <strong>${comment.author}</strong>
                     <time>${formatDisplayDate(comment.timestamp)}</time>
                 </div>
-                <div class="comment__content"><p>${comment.content}</p></div>
+                <div class="comment__content"><p>${sanitizedComment}</p></div>
                 <div class="comment__actions">
                     <button class="btn-action comment-like-btn" data-comment-id="${comment.id}"><i class="fa-regular fa-thumbs-up"></i></button>
                     <span class="comment-vote-score">${voteScore}</span>
@@ -64,62 +82,87 @@ async function initializePage() {
             </div>`;
         }).join('');
     }
-     threadContainer.addEventListener('click', async (event) => {
-        const likeButton = event.target.closest('.like-btn');
-        const bookmarkButton = event.target.closest('.bookmark-btn');
 
-        // Optimistic Like
-        if (likeButton) {
-            const scoreElement = threadContainer.querySelector('.vote-score');
-            const originalLikes = currentThread.likes;
-            const originalScore = (originalLikes || 0) - (currentThread.dislikes || 0);
-            
-            // 1. Update UI secara instan
-            likeButton.classList.add('active');
-            likeButton.disabled = true;
-            currentThread.likes++;
-            scoreElement.textContent = originalScore + 1;
-
-            try {
-                // 2. Panggil API di latar belakang
-                await addLikeToThread(threadId);
-                showToast('Thread disukai!');
-            } catch (error) {
-                // 3. Rollback jika gagal
-                currentThread.likes = originalLikes;
-                scoreElement.textContent = originalScore;
-                likeButton.classList.remove('active');
-                showError('menyukai thread', error);
-            } finally {
-                likeButton.disabled = false;
-            }
-        }
-
-        // Optimistic Bookmark
-        if (bookmarkButton) {
-            const wasBookmarked = bookmarkButton.classList.contains('active');
-            
-            // 1. Update UI secara instan
-            updateBookmarkButton(bookmarkButton, !wasBookmarked);
-
-            try {
-                // 2. Panggil API (sinkron di kasus ini)
-                toggleBookmark(threadId);
-                showToast(!wasBookmarked ? 'Bookmark ditambahkan' : 'Bookmark dihapus');
-            } catch (error) {
-                // 3. Rollback jika gagal (meskipun toggleBookmark sinkron)
-                updateBookmarkButton(bookmarkButton, wasBookmarked);
-                showError('menyimpan bookmark', error);
-            }
-        }
+    // Event delegation untuk semua aksi di dalam container
+    threadContainer.addEventListener('click', async (event) => {
+        const target = event.target;
         
-        // ... (logika untuk dislike, komentar, dll.)
+        const likeButton = target.closest('.like-btn');
+        const dislikeButton = target.closest('.dislike-btn');
+        const bookmarkButton = target.closest('.bookmark-btn');
+
+        // Aksi Like Thread
+        if (likeButton && !likeButton.disabled) {
+            likeButton.disabled = true;
+            try {
+                await addLikeToThread(threadId);
+                currentThread.likes++;
+                renderThreadDetail(currentThread); // Re-render untuk update
+                showToast('Thread disukai!');
+            } catch (error) { showError('menyukai thread', error); } 
+        }
+
+        // Aksi Dislike Thread
+        if (dislikeButton && !dislikeButton.disabled) {
+            dislikeButton.disabled = true;
+            try {
+                await addDislikeToThread(threadId);
+                currentThread.dislikes++;
+                renderThreadDetail(currentThread); // Re-render untuk update
+            } catch (error) { showError('memberi dislike', error); }
+        }
+
+        // Aksi Bookmark
+        if (bookmarkButton) {
+            try {
+                toggleBookmark(threadId);
+                const bookmarked = isBookmarked(threadId);
+                updateBookmarkButton(bookmarkButton, bookmarked);
+                showToast(bookmarked ? 'Bookmark ditambahkan' : 'Bookmark dihapus');
+            } catch (error) { showError('menyimpan bookmark', error); }
+        }
     });
 
-    // Inisialisasi
+    // Event listener untuk form komentar
+    threadContainer.addEventListener('submit', async (event) => {
+        if (event.target.id === 'comment-form') {
+            event.preventDefault();
+            const form = event.target;
+            const contentInput = form.querySelector('#comment-content');
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            const content = contentInput.value.trim();
+            if (!content) {
+                showToast('Komentar tidak boleh kosong.', 'error');
+                return;
+            }
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Mengirim...';
+
+            try {
+                currentThread = await addCommentToThread(threadId, content);
+                renderThreadDetail(currentThread); // Re-render semua untuk menampilkan komentar baru
+                showToast('Komentar berhasil ditambahkan!', 'success');
+                // Gulir ke komentar baru jika perlu
+            } catch (error) {
+                showError('menambahkan komentar', error);
+            } finally {
+                // Tidak perlu enable button lagi karena seluruhnya di-render ulang
+            }
+        }
+    });
+
+
+    // Inisialisasi awal saat halaman dimuat
     try {
+        await incrementViewCount(threadId);
         currentThread = await getThreadById(threadId);
-        renderThreadDetail(currentThread);
+        if (currentThread) {
+            renderThreadDetail(currentThread);
+        } else {
+             threadContainer.innerHTML = `<p class="error-message">Gagal memuat thread. Mungkin thread telah dihapus.</p>`;
+        }
     } catch (error) {
         showError('memuat detail thread', error);
         threadContainer.innerHTML = `<p class="error-message">Gagal memuat thread. Mungkin thread telah dihapus.</p>`;
