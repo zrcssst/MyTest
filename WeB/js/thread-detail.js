@@ -13,28 +13,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderThreadDetail(thread);
 
     threadContainer.addEventListener('click', async function(event) {
-        const likeButton = event.target.closest('.like-btn');
-        if (likeButton) {
-            likeButton.disabled = true;
-            likeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
-            const newLikes = await addLikeToThread(threadId);
-            if (newLikes !== null) {
-                const thread = await getThreadById(threadId); 
-                renderThreadDetail(thread); 
-            }
-            likeButton.disabled = false;
+    const likeButton = event.target.closest('.like-btn');
+    if (likeButton) {
+        likeButton.disabled = true;
+        likeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+        try {
+            await addLikeToThread(threadId);
+            // Ambil data terbaru dan render ulang
+            const updatedThread = await getThreadById(threadId); 
+            if(updatedThread) renderThreadDetail(updatedThread); 
+        } catch (error) {
+            console.error("Gagal menyukai thread:", error);
+   
+        } finally {
+ 
+            likeButton.disabled = false; 
         }
-        const dislikeButton = event.target.closest('.dislike-btn');
-        if (dislikeButton) {
-            dislikeButton.disabled = true;
-            dislikeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
-            const newDislikes = await addDislikeToThread(threadId);
-            if (newDislikes !== null) {
-                const thread = await getThreadById(threadId); 
-                renderThreadDetail(thread);
-            }
+    }
+
+    const dislikeButton = event.target.closest('.dislike-btn');
+    if (dislikeButton) {
+        dislikeButton.disabled = true;
+        dislikeButton.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
+        try {
+            await addDislikeToThread(threadId);
+            const updatedThread = await getThreadById(threadId);
+            if(updatedThread) renderThreadDetail(updatedThread);
+        } catch (error) {
+            console.error("Gagal melakukan dislike:", error);
+        } finally {
             dislikeButton.disabled = false;
         }
+    }
          const commentLikeBtn = event.target.closest('.comment-like-btn');
         if (commentLikeBtn) {
             const commentId = commentLikeBtn.dataset.commentId;

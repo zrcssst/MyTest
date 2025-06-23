@@ -44,15 +44,17 @@ function initializeNavbar() {
     // --- Pencarian di Navbar ---
     const searchForm = document.getElementById('search-form');
         if (searchForm) {
-            searchForm.addEventListener('submit', (e) => {
+           /* searchForm.addEventListener('submit', (e) => {
             e.preventDefault(); // Mencegah form submit secara default
             const searchInput = document.getElementById('searchInput');
             const query = searchInput.value.trim();
         if (query) {
             window.location.href = `index.html?search=${encodeURIComponent(query)}`;
         }
-    });
-}
+    }); */
+     searchForm.addEventListener('submit', (e) => e.preventDefault());
+    }
+
 
     // --- Logika Dropdown Notifikasi ---
     const bell = document.getElementById('notification-bell');

@@ -1,15 +1,20 @@
 // js/main.js (Versi Perbaikan)
 document.addEventListener('DOMContentLoaded', () => {
-    const isBookmarkPage = window.location.pathname.includes('bookmark.html');
     const threadListContainer = document.getElementById('thread-list-container');
     const searchInput = document.getElementById('searchInput');
     const pageTitle = document.getElementById('page-title');
     
-    // Variabel untuk menyimpan semua thread dari "API"
     let allThreads = []; 
-    // Variabel untuk menyimpan state UI
     let state = { sort: 'terbaru', category: 'all' };
 
+    const debouncedRender = debounce((keyword) => {
+        renderThreads(keyword);
+    }, 400); 
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        debouncedRender(query);
+    });
+    
     const renderLoadingSkeletons = () => {
         threadListContainer.innerHTML = '';
         for (let i = 0; i < 3; i++) {
@@ -56,16 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fungsi render sekarang hanya memanipulasi data yang sudah ada (allThreads)
     const renderThreads = (keyword = '') => {
-        let threadsToRender;
+        // Logika render sekarang lebih sederhana
+        let threadsToRender = [...allThreads];
 
-        if (isBookmarkPage) {
-            const bookmarks = getBookmarks();
-            threadsToRender = allThreads.filter(t => bookmarks.includes(t.id));
-        } else {
-            threadsToRender = [...allThreads]; // Salin array agar tidak mengubah data asli
-        }
-
-        if (!isBookmarkPage && state.category !== 'all') {
+        if (state.category !== 'all') {
             threadsToRender = threadsToRender.filter(t => t.category === state.category);
         }
         if (keyword) {
@@ -80,13 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         threadListContainer.innerHTML = '';
         if (threadsToRender.length === 0) {
-            renderEmptyState(isBookmarkPage ? 'Anda belum menyimpan bookmark.' : 'Tidak ada thread yang cocok.');
+            renderEmptyState('Tidak ada thread yang cocok.');
             return;
         }
         threadsToRender.forEach(thread => threadListContainer.appendChild(createThreadCard(thread)));
     };
     
-    if (!isBookmarkPage) {
         const sortingOptions = document.querySelector('.sorting-options');
         sortingOptions.addEventListener('click', (e) => {
             if (e.target.matches('.sort-btn')) {
@@ -108,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderThreads(searchInput.value.toLowerCase().trim()); // Panggil render tanpa await
             }
         });
-    }
+    
 
     const renderStats = async () => {
         if (isBookmarkPage || !document.getElementById('stats-threads')) return;
@@ -131,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Inisialisasi halaman utama
     const initializePage = async () => {
         renderLoadingSkeletons();
         showNotification();
