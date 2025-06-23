@@ -1,5 +1,6 @@
-// js/main.js (Versi Perbaikan)
-document.addEventListener('DOMContentLoaded', () => {
+// js/main.js (Versi Final yang Sudah Diperbaiki)
+
+function initializeMainPage() {
     const threadListContainer = document.getElementById('thread-list-container');
     const searchInput = document.getElementById('searchInput');
     const pageTitle = document.getElementById('page-title');
@@ -7,14 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let allThreads = []; 
     let state = { sort: 'terbaru', category: 'all' };
 
-    const debouncedRender = debounce((keyword) => {
-        renderThreads(keyword);
-    }, 400); 
-    searchInput.addEventListener('input', () => {
-        const query = searchInput.value.toLowerCase().trim();
-        debouncedRender(query);
-    });
-    
+    const debounce = (func, delay = 400) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    };
+   
     const renderLoadingSkeletons = () => {
         threadListContainer.innerHTML = '';
         for (let i = 0; i < 3; i++) {
@@ -59,9 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return card;
     };
 
-    // Fungsi render sekarang hanya memanipulasi data yang sudah ada (allThreads)
     const renderThreads = (keyword = '') => {
-        // Logika render sekarang lebih sederhana
         let threadsToRender = [...allThreads];
 
         if (state.category !== 'all') {
@@ -85,17 +86,29 @@ document.addEventListener('DOMContentLoaded', () => {
         threadsToRender.forEach(thread => threadListContainer.appendChild(createThreadCard(thread)));
     };
     
-        const sortingOptions = document.querySelector('.sorting-options');
+    // --- Event Listeners ---
+    const debouncedRender = debounce((keyword) => renderThreads(keyword), 400);
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase().trim();
+            debouncedRender(query);
+        });
+    }
+    
+    const sortingOptions = document.querySelector('.sorting-options');
+    if (sortingOptions) {
         sortingOptions.addEventListener('click', (e) => {
             if (e.target.matches('.sort-btn')) {
                 state.sort = e.target.dataset.sort;
                 document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
-                renderThreads(searchInput.value.toLowerCase().trim()); // Panggil render tanpa await
+                renderThreads(searchInput.value.toLowerCase().trim());
             }
         });
+    }
 
-        const categoryList = document.querySelector('.category-list');
+    const categoryList = document.querySelector('.category-list');
+    if (categoryList) {
         categoryList.addEventListener('click', (e) => {
             if (e.target.matches('.category-link')) {
                 e.preventDefault();
@@ -103,13 +116,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 pageTitle.textContent = state.category === 'all' ? 'Diskusi Terkini' : `Kategori: ${state.category.charAt(0).toUpperCase() + state.category.slice(1)}`;
                 document.querySelectorAll('.category-link').forEach(link => link.classList.remove('active'));
                 e.target.classList.add('active');
-                renderThreads(searchInput.value.toLowerCase().trim()); // Panggil render tanpa await
+                renderThreads(searchInput.value.toLowerCase().trim());
             }
         });
-    
+    }
 
     const renderStats = async () => {
-        if (isBookmarkPage || !document.getElementById('stats-threads')) return;
+        // Saya hapus 'isBookmarkPage' karena file ini hanya untuk halaman utama
+        if (!document.getElementById('stats-threads')) return;
         const stats = await getForumStats();
         document.getElementById('stats-threads').textContent = `Threads: ${stats.threads}`;
         document.getElementById('stats-comments').textContent = `Komentar: ${stats.comments}`;
@@ -133,22 +147,23 @@ document.addEventListener('DOMContentLoaded', () => {
         renderLoadingSkeletons();
         showNotification();
         
-        // Ambil semua data sekali dan simpan
         allThreads = await getThreads();
         
         const urlParams = new URLSearchParams(window.location.search);
         const searchQuery = urlParams.get('search');
 
-        if (searchQuery) {
+        if (searchQuery && searchInput) {
             searchInput.value = searchQuery;
         }
         
-        // Render pertama kali
         renderThreads(searchQuery ? searchQuery.toLowerCase() : '');
         
-        // Render statistik
         await renderStats();
     };
 
+    // Panggil inisialisasi utama di sini, di dalam fungsi initializeMainPage
     initializePage();
-});
+}
+
+// "Ekspos" fungsi ini ke scope global
+window.initializeMainPage = initializeMainPage;

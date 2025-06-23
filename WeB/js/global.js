@@ -41,18 +41,9 @@ function initializeNavbar() {
         }
     }
 
-    // --- Pencarian di Navbar ---
-    const searchForm = document.getElementById('search-form');
-        if (searchForm) {
-           /* searchForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Mencegah form submit secara default
-            const searchInput = document.getElementById('searchInput');
-            const query = searchInput.value.trim();
-        if (query) {
-            window.location.href = `index.html?search=${encodeURIComponent(query)}`;
-        }
-    }); */
-     searchForm.addEventListener('submit', (e) => e.preventDefault());
+       const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', (e) => e.preventDefault());
     }
 
 
@@ -96,7 +87,14 @@ function initializeNavbar() {
 }
 
 // Panggil fungsi pemuat template saat halaman pertama kali dimuat
-document.addEventListener('DOMContentLoaded', () => {
-    loadNavbar();
-    loadFooter();
+document.addEventListener('DOMContentLoaded', async () => {
+    // Gunakan await untuk memastikan komponen dimuat secara berurutan
+    await loadNavbar();
+    await loadFooter();
+
+    // Setelah semua komponen global selesai dimuat,
+    // panggil logika spesifik halaman jika ada.
+    if (typeof window.initializeMainPage === 'function') {
+        window.initializeMainPage();
+    }
 });

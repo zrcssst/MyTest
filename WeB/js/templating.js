@@ -15,18 +15,12 @@ const loadComponent = async (url, placeholderId) => {
     }
 };
 
-// Fungsi spesifik untuk memuat Navbar
-const loadNavbar = async () => {
-    // Kita panggil loadComponent untuk memuat navbar
-    await loadComponent('templates/navbar.html', 'navbar-placeholder');
 
-    // Setelah navbar dimuat, kita perlu menjalankan kembali logika JS untuk navbar
-    // seperti manajemen tema, status user, dan notifikasi.
-    // Kode ini diambil dan diadaptasi dari global.js
+const loadNavbar = async () => {
+    await loadComponent('templates/navbar.html', 'navbar-placeholder');
     initializeNavbar(); 
 };
 
-// Fungsi spesifik untuk memuat Footer
-const loadFooter = () => {
-    loadComponent('templates/footer.html', 'footer-placeholder');
+const loadFooter = async () => {
+    await loadComponent('templates/footer.html', 'footer-placeholder');
 };
