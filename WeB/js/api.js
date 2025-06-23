@@ -4,11 +4,20 @@ const API_DELAY = 400;
 
 // --- Inisialisasi & Data Mock ---
 const mockThreads = [
-    { id: 't1', title: 'Bagaimana cara terbaik belajar JavaScript di tahun 2025?', /* ... */ likes: 42, dislikes: 0, views: 150, 
-      comments: [ 
-          { id: 'c1', author: 'Citra', content: 'Menurut saya React masih yang paling banyak dicari di industri...', timestamp: '2025-06-19T11:30:00Z', likes: 5, dislikes: 0 }, 
-          { id: 'c2', author: 'Bunga', content: 'Kalau untuk pemula, Svelte bisa jadi pilihan yang menarik...', timestamp: '2025-06-19T12:00:00Z', likes: 3, dislikes: 1 } 
-      ] 
+    {
+      id: 't1',
+      title: 'Bagaimana cara terbaik belajar JavaScript di tahun 2025?',
+      author: 'Budi Sanjaya',      // PASTIKAN PROPERTI INI ADA
+      category: 'teknologi',      // PASTIKAN PROPERTI INI ADA
+      timestamp: '2025-06-21T10:00:00Z', // PASTIKAN PROPERTI INI ADA
+      views: 150,
+      likes: 42,
+      dislikes: 0,
+      commentsCount: 2,           // PASTIKAN PROPERTI INI ADA
+      comments: [
+          { id: 'c1', author: 'Citra', content: 'Menurut saya React masih yang paling banyak dicari di industri...', timestamp: '2025-06-19T11:30:00Z', likes: 5, dislikes: 0 },
+          { id: 'c2', author: 'Bunga', content: 'Kalau untuk pemula, Svelte bisa jadi pilihan yang menarik...', timestamp: '2025-06-19T12:00:00Z', likes: 3, dislikes: 1 }
+      ]
     },
 ];
 
@@ -28,7 +37,11 @@ function getCurrentUser() { const user = sessionStorage.getItem('currentUser'); 
 
 // --- API Threads (Asinkron) ---
 const getThreads = () => new Promise(resolve => setTimeout(() => resolve(JSON.parse(localStorage.getItem('threads')) || []), API_DELAY));
-const getThreadById = (id) => new Promise(resolve => setTimeout(() => resolve(getThreads().then(threads => threads.find(t => t.id === id))), 100));
+const getThreadById = async (id) => {
+    const threads = await getThreads();
+    await new Promise(resolve => setTimeout(resolve, 100)); 
+    return threads.find(t => t.id === id);
+};
 const saveNewThread = (thread) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { thread.id = 't' + Date.now(); threads.unshift(thread); localStorage.setItem('threads', JSON.stringify(threads)); resolve(thread); }); }, API_DELAY));
 const addLikeToThread = (threadId) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i=threads.findIndex(t=>t.id===threadId); if(i!==-1){ threads[i].likes++; localStorage.setItem('threads',JSON.stringify(threads)); resolve(threads[i].likes); } else { resolve(null); } }); }, 200));
 const addDislikeToThread = (threadId) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i=threads.findIndex(t=>t.id===threadId); if(i!==-1){ threads[i].dislikes = (threads[i].dislikes || 0) + 1; localStorage.setItem('threads',JSON.stringify(threads)); resolve(threads[i].dislikes); } else { resolve(null); } }); }, 200));

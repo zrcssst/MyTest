@@ -14,46 +14,12 @@
     <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
- <header class="navbar">
-    <div class="container navbar__container">
-        <a href="index.html" class="navbar__logo">ForumKita</a>
-        <div class="navbar__search">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="searchInput" placeholder="Cari thread...">
-        </div>
-        <nav class="navbar__menu">
-            <a href="index.html" class="navbar__link" title="Home"><i class="fa-solid fa-house"></i></a>
-            <a href="bookmark.html" class="navbar__link" title="Bookmark"><i class="fa-regular fa-bookmark"></i></a>
-            <div class="notification-container">
-                <button id="notification-bell" class="navbar__link" title="Notifikasi"><i class="fa-solid fa-bell"></i></button>
-                <div id="notification-dropdown" class="notification-dropdown">
-                    <div class="notification-header">Notifikasi</div>
-                    <div class="notification-dropdown-content">
-                        </div>
-                    <div class="notification-footer">Tandai sudah dibaca</div>
-                </div>
-            </div>
-            <button id="theme-toggle" class="navbar__theme-btn" title="Ganti Tema"><i class="fa-solid fa-moon"></i></button>
-        </nav>
-        <div id="nav-user-section" class="navbar__user-section"></div>
-    </div>
-</header>
-
+    <div id="navbar-placeholder"></div>
     <main class="container" id="thread-detail-container">
         <div class="loading-spinner"></div>
     </main>
-
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2025 ForumKita. Semua Hak Cipta Dilindungi.</p>
-            <div class="footer__links">
-                <a href="#">Kebijakan Privasi</a>
-                <a href="#">Syarat Penggunaan</a>
-                <a href="#">Kontak Admin</a>
-            </div>
-        </div>
-    </footer>
-
+    <div id="footer-placeholder"></div>
+    <script src="js/templating.js"></script>
     <script src="js/global.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
     <script src="js/utils.js"></script>

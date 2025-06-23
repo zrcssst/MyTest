@@ -1,7 +1,8 @@
 // js/global.js
 
-document.addEventListener('DOMContentLoaded', () => {
-
+// Fungsi ini akan menginisialisasi semua fungsionalitas di dalam navbar
+// Setelah elemen-elemennya berhasil dimuat oleh templating.js
+function initializeNavbar() {
     // --- Manajemen Tampilan Tema (Terang/Gelap) ---
     const themeToggleButton = document.getElementById('theme-toggle');
     if (themeToggleButton) {
@@ -39,27 +40,29 @@ document.addEventListener('DOMContentLoaded', () => {
             navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
         }
     }
- const searchInput = document.getElementById('searchInput');
+
+    // --- Pencarian di Navbar ---
+    const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const query = searchInput.value.trim();
                 if (query) {
-                    // Arahkan ke halaman utama dengan parameter pencarian
                     window.location.href = `index.html?search=${encodeURIComponent(query)}`;
                 }
             }
         });
     }
+
     // --- Logika Dropdown Notifikasi ---
     const bell = document.getElementById('notification-bell');
     const dropdown = document.getElementById('notification-dropdown');
     if (bell && dropdown) {
-        const renderNotifications = async () => { // Menjadi async
+        const renderNotifications = async () => {
             const contentContainer = dropdown.querySelector('.notification-dropdown-content');
             contentContainer.innerHTML = '<div class="notification-item">Memuat...</div>';
             
-            const notifications = await getNotifications(); // Menggunakan await
+            const notifications = await getNotifications();
 
             if (notifications && notifications.length > 0) {
                 contentContainer.innerHTML = notifications.map(notif => `
@@ -77,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (bell.contains(e.target)) {
                 const isDropdownVisible = dropdown.classList.contains('show');
                 if (!isDropdownVisible) {
-                    renderNotifications(); // Panggil fungsi async
+                    renderNotifications();
                 }
                 dropdown.classList.toggle('show');
                 return; 
@@ -88,4 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+}
+
+// Panggil fungsi pemuat template saat halaman pertama kali dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    loadNavbar();
+    loadFooter();
 });

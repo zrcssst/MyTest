@@ -1,6 +1,11 @@
 // js/utils.js
 function formatDisplayDate(timestamp) {
     const date = new Date(timestamp);
+    // Cek apakah tanggal valid. Jika tidak, kembalikan string kosong atau pesan error.
+    if (isNaN(date.getTime())) {
+        return 'Invalid date';
+    }
+
     const now = new Date();
     const diffSeconds = Math.round((now - date) / 1000);
     const rtf = new Intl.RelativeTimeFormat('id-ID', { numeric: 'auto' });
