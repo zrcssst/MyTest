@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!threadId) { threadContainer.innerHTML = '<p class="error-message">Error: ID thread tidak ditemukan.</p>'; return; }
 
-    await incrementViewCount(threadId);
-    const thread = await getThreadById(threadId);
+     await incrementViewCount(threadId);
+    let thread = await getThreadById(threadId);
     if (!thread) { threadContainer.innerHTML = '<p class="error-message">Thread tidak ditemukan.</p>'; return; }
     
     renderThreadDetail(thread);
@@ -34,6 +34,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderThreadDetail(thread);
             }
             dislikeButton.disabled = false;
+        }
+         const commentLikeBtn = event.target.closest('.comment-like-btn');
+        if (commentLikeBtn) {
+            const commentId = commentLikeBtn.dataset.commentId;
+            await addLikeToComment(threadId, commentId);
+            thread = await getThreadById(threadId); // Ambil data terbaru
+            renderThreadDetail(thread); // Render ulang
+        }
+
+        // [BARU] Logika untuk Dislike Komentar
+        const commentDislikeBtn = event.target.closest('.comment-dislike-btn');
+        if (commentDislikeBtn) {
+            const commentId = commentDislikeBtn.dataset.commentId;
+            await addDislikeToComment(threadId, commentId);
+            thread = await getThreadById(threadId); // Ambil data terbaru
+            renderThreadDetail(thread); // Render ulang
         }
         const bookmarkButton = event.target.closest('.bookmark-btn');
         if (bookmarkButton) {
@@ -84,12 +100,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateBookmarkButton(threadContainer.querySelector('.bookmark-btn'), isBookmarked(threadId));
     }
 
-    function renderComments(comments) {
+  function renderComments(comments) {
         if (!comments || comments.length === 0) { return '<p>Jadilah yang pertama berkomentar!</p>'; }
-        return comments.slice().reverse().map(comment => `
+        return comments.slice().reverse().map(comment => {
+            const voteScore = (comment.likes || 0) - (comment.dislikes || 0);
+            return `
             <div class="comment">
-                <div class="comment__header"><strong>${comment.author}</strong><time>${formatDisplayDate(comment.timestamp)}</time></div>
+                <div class="comment__header">
+                    <strong>${comment.author}</strong>
+                    <time>${formatDisplayDate(comment.timestamp)}</time>
+                </div>
                 <div class="comment__content"><p>${comment.content}</p></div>
-            </div>`).join('');
+                <div class="comment__actions">
+                    <button class="btn-action comment-like-btn" data-comment-id="${comment.id}"><i class="fa-regular fa-thumbs-up"></i></button>
+                    <span class="comment-vote-score">${voteScore}</span>
+                    <button class="btn-action comment-dislike-btn" data-comment-id="${comment.id}"><i class="fa-regular fa-thumbs-down"></i></button>
+                </div>
+            </div>`;
+        }).join('');
     }
 });

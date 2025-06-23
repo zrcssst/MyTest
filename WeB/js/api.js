@@ -4,10 +4,14 @@ const API_DELAY = 400;
 
 // --- Inisialisasi & Data Mock ---
 const mockThreads = [
-    { id: 't1', title: 'Bagaimana cara terbaik belajar JavaScript di tahun 2025?', content: 'Saya seorang pemula yang ingin memulai karier di bidang web development. Melihat perkembangan yang begitu pesat, framework dan library apa yang sebaiknya saya pelajari terlebih dahulu? Apakah fokus ke React, Vue, atau mencoba Svelte?', author: 'Andi', timestamp: '2025-06-19T10:00:00Z', category: 'teknologi', commentsCount: 2, likes: 42, Dislikes : 0, views: 150, comments: [ { id: 'c1', author: 'Citra', content: 'Menurut saya React masih yang paling banyak dicari di industri. Banyak perusahaan besar menggunakannya, jadi pasarnya lebih luas.', timestamp: '2025-06-19T11:30:00Z' }, { id: 'c2', author: 'Bunga', content: 'Kalau untuk pemula, Svelte bisa jadi pilihan yang menarik karena sintaksnya lebih sederhana dan lebih dekat ke HTML/CSS/JS standar.', timestamp: '2025-06-19T12:00:00Z' } ] },
-    { id: 't2', title: 'Rekomendasi buku fiksi ilmiah yang wajib dibaca', content: 'Baru saja selesai membaca "Dune" dan sangat terkesan. Adakah rekomendasi buku sci-fi lain dengan pembangunan dunia yang epik seperti itu? Saya suka tema politik, teknologi, dan eksplorasi luar angkasa.', author: 'Bunga', timestamp: '2025-06-18T14:30:00Z', category: 'hobi', commentsCount: 0, likes: 25, Dislikes : 0, views: 98, comments: [] },
-    { id: 't3', title: 'Tips & Trik Optimasi Performa Website', content: 'Mari berbagi teknik favorit kalian untuk membuat website lebih cepat. Mulai dari lazy loading gambar, code splitting, hingga optimasi font. Apa trik andalan kalian?', author: 'Citra', timestamp: '2025-06-17T09:00:00Z', category: 'edukasi', commentsCount: 0, likes: 58, Dislikes : 0, views: 250, comments: [] }
+    { id: 't1', title: 'Bagaimana cara terbaik belajar JavaScript di tahun 2025?', /* ... */ likes: 42, dislikes: 0, views: 150, 
+      comments: [ 
+          { id: 'c1', author: 'Citra', content: 'Menurut saya React masih yang paling banyak dicari di industri...', timestamp: '2025-06-19T11:30:00Z', likes: 5, dislikes: 0 }, 
+          { id: 'c2', author: 'Bunga', content: 'Kalau untuk pemula, Svelte bisa jadi pilihan yang menarik...', timestamp: '2025-06-19T12:00:00Z', likes: 3, dislikes: 1 } 
+      ] 
+    },
 ];
+
 const MOCK_USERS_COUNT = 15;
 
 function initializeData() {
@@ -28,7 +32,35 @@ const getThreadById = (id) => new Promise(resolve => setTimeout(() => resolve(ge
 const saveNewThread = (thread) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { thread.id = 't' + Date.now(); threads.unshift(thread); localStorage.setItem('threads', JSON.stringify(threads)); resolve(thread); }); }, API_DELAY));
 const addLikeToThread = (threadId) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i=threads.findIndex(t=>t.id===threadId); if(i!==-1){ threads[i].likes++; localStorage.setItem('threads',JSON.stringify(threads)); resolve(threads[i].likes); } else { resolve(null); } }); }, 200));
 const addDislikeToThread = (threadId) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i=threads.findIndex(t=>t.id===threadId); if(i!==-1){ threads[i].dislikes = (threads[i].dislikes || 0) + 1; localStorage.setItem('threads',JSON.stringify(threads)); resolve(threads[i].dislikes); } else { resolve(null); } }); }, 200));
-const addCommentToThread = (threadId, commentContent) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i = threads.findIndex(t => t.id === threadId); if (i !== -1) { if (!Array.isArray(threads[i].comments)) { threads[i].comments = []; } const c = { id: 'c' + Date.now(), author: getCurrentUser().name, content: commentContent, timestamp: new Date().toISOString() }; threads[i].comments.push(c); threads[i].commentsCount = threads[i].comments.length; localStorage.setItem('threads', JSON.stringify(threads)); resolve(threads[i]); } else { resolve(null); } }); }, API_DELAY));
+const addCommentToThread = (threadId, commentContent) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i = threads.findIndex(t => t.id === threadId); if (i !== -1) { if (!Array.isArray(threads[i].comments)) { threads[i].comments = []; } const c = { id: 'c' + Date.now(), author: getCurrentUser().name, content: commentContent, timestamp: new Date().toISOString(), likes: 0, dislikes: 0 }; threads[i].comments.push(c); threads[i].commentsCount = threads[i].comments.length; localStorage.setItem('threads', JSON.stringify(threads)); resolve(threads[i]); } else { resolve(null); } }); }, API_DELAY));
+const addLikeToComment = (threadId, commentId) => new Promise(resolve => {
+    getThreads().then(threads => {
+        const thread = threads.find(t => t.id === threadId);
+        if (thread) {
+            const comment = thread.comments.find(c => c.id === commentId);
+            if (comment) {
+                comment.likes = (comment.likes || 0) + 1;
+                localStorage.setItem('threads', JSON.stringify(threads));
+                resolve(comment);
+            } else { resolve(null); }
+        } else { resolve(null); }
+    });
+});
+
+const addDislikeToComment = (threadId, commentId) => new Promise(resolve => {
+    getThreads().then(threads => {
+        const thread = threads.find(t => t.id === threadId);
+        if (thread) {
+            const comment = thread.comments.find(c => c.id === commentId);
+            if (comment) {
+                comment.dislikes = (comment.dislikes || 0) + 1;
+                localStorage.setItem('threads', JSON.stringify(threads));
+                resolve(comment);
+            } else { resolve(null); }
+        } else { resolve(null); }
+    });
+});
+
 const incrementViewCount = (threadId) => new Promise(resolve => setTimeout(() => { getThreads().then(threads => { const i=threads.findIndex(t=>t.id===threadId); if(i!==-1){ threads[i].views=(threads[i].views||0)+1; localStorage.setItem('threads',JSON.stringify(threads)); } resolve(); }); }, 50));
 
 // --- API Bookmark (Sinkron & Cepat, tidak perlu Promise) ---

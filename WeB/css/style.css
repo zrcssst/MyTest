@@ -99,3 +99,19 @@ button:disabled { cursor: not-allowed; background-color: var(--text-secondary) !
 .empty-state i { font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem; }
 .empty-state p { font-weight: 500; color: var(--text-secondary); }
 .vote-score { font-weight: 600; font-size: 1rem;color: var(--text-primary); min-width: 20px; text-align: center;}
+.comment__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Jarak antar tombol lebih kecil */
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.comment-vote-score {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 15px;
+    text-align: center;
+}
