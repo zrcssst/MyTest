@@ -15,10 +15,9 @@
 </head>
 <body>
     <div id="navbar-placeholder"></div>
-
-
-
     <div id="notification-banner"></div>
+    
+    <div id="toast-container"></div>
 
     <div class="container page-layout">
         <main class="main-content">
@@ -32,6 +31,8 @@
                 </div>
             </section>
             <section id="thread-list-container" class="thread-list"></section>
+            
+            <div id="pagination-container" class="pagination"></div>
         </main>
 
         <aside class="sidebar" id="categories">
@@ -56,10 +57,7 @@
         </aside>
     </div>
     <div id="footer-placeholder"></div>
-    <script src="js/templating.js"></script>
-    <script src="js/global.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/main.js"></script>
+
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

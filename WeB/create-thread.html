@@ -16,10 +16,12 @@
 <body>
     <div id="navbar-placeholder"></div>
 
+    <div id="toast-container"></div>
+
     <main class="container">
         <div class="form-container">
             <h1>Buat Thread Baru</h1>
-            <form id="create-thread-form">
+            <form id="create-thread-form" novalidate>
                 <div class="form-group">
                     <label for="thread-title">Judul Thread</label>
                     <input type="text" id="thread-title" name="title" required minlength="10" placeholder="Tulis judul yang menarik...">
@@ -47,53 +49,9 @@
     </main>
     
     <div id="footer-placeholder"></div>
-    <script src="js/templating.js"></script>
-    <script src="js/global.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
-    <script src="js/validation.js"></script>
-    <script src="js/api.js"></script>
-    <script>
-    document.getElementById('create-thread-form').addEventListener('submit', async function(event) { // Menjadi async
-        event.preventDefault();
-        const titleInput = document.getElementById('thread-title');
-        const contentInput = document.getElementById('thread-content');
-        const categoryInput = document.getElementById('thread-category');
-        const categoryError = document.getElementById('category-error');
 
-        // Validasi field yang sudah ada
-        const isTitleValid = validateField(titleInput, 'title-error', 'Judul minimal 10 karakter.');
-        const isContentValid = validateField(contentInput, 'content-error', 'Konten tidak boleh kosong.');
-        
-        // Validasi Kategori yang konsisten dengan field lain
-        let isCategoryValid = true;
-        if (categoryInput.value === "") {
-            categoryError.textContent = 'Silakan pilih kategori terlebih dahulu.';
-            categoryInput.style.borderColor = 'var(--accent-color)';
-            isCategoryValid = false;
-        } else {
-            categoryError.textContent = '';
-            categoryInput.style.borderColor = 'var(--border-color)';
-        }
-
-        // Lanjutkan hanya jika semua field valid
-       if (isTitleValid && isContentValid && isCategoryValid) {
-            const currentUser = getCurrentUser();
-            const newThread = {
-                title: titleInput.value,
-                category: categoryInput.value,
-                content: DOMPurify.sanitize(contentInput.value),
-                author: currentUser.name,
-                timestamp: new Date().toISOString(),
-                views: 0,
-                commentsCount: 0,
-                likes: 0,
-                dislikes: 0,
-                comments: []
-            };
-            await saveNewThread(newThread); // Menggunakan await
-            window.location.href = 'index.html?status=thread_created';
-        }
-    });
-</script>
+    <script type="module" src="js/create-thread.js"></script>
 </body>
 </html>
