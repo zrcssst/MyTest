@@ -1,3 +1,8 @@
+// js/templating.js
+
+// [PERBAIKAN] Impor fungsi initializeNavbar dari global.js
+import { initializeNavbar } from './global.js';
+
 // Fungsi untuk memuat konten dari file eksternal dan memasukkannya ke elemen target
 const loadComponent = async (url, placeholderId) => {
     try {
@@ -15,12 +20,12 @@ const loadComponent = async (url, placeholderId) => {
     }
 };
 
-
-const loadNavbar = async () => {
+// [PERBAIKAN] Sekarang fungsi-fungsi ini bisa diekspor dan diimpor di mana saja
+export const loadNavbar = async () => {
     await loadComponent('templates/navbar.html', 'navbar-placeholder');
-    initializeNavbar(); 
+    initializeNavbar(); // Fungsi ini sekarang sudah diimpor dan dikenali
 };
 
-const loadFooter = async () => {
+export const loadFooter = async () => {
     await loadComponent('templates/footer.html', 'footer-placeholder');
 };

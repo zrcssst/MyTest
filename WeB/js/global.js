@@ -1,8 +1,10 @@
 // js/global.js
 
-// Fungsi ini akan menginisialisasi semua fungsionalitas di dalam navbar
-// Setelah elemen-elemennya berhasil dimuat oleh templating.js
-function initializeNavbar() {
+// [PERBAIKAN] Impor semua fungsi yang dibutuhkan dari modul lain
+import { getCurrentUser, logout, getNotifications } from './api.js';
+
+// [PERBAIKAN] Ekspor fungsi ini agar bisa diimpor oleh file lain
+export function initializeNavbar() {
     // --- Manajemen Tampilan Tema (Terang/Gelap) ---
     const themeToggleButton = document.getElementById('theme-toggle');
     if (themeToggleButton) {
@@ -29,23 +31,22 @@ function initializeNavbar() {
     // --- Manajemen Tampilan Pengguna di Navbar ---
     const navUserSection = document.getElementById('nav-user-section');
     if (navUserSection) {
-        const user = getCurrentUser(); // <-- Fungsi ini sekarang memanggil dari api.js
+        const user = getCurrentUser();
         if (user) {
             navUserSection.innerHTML = `
                 <a href="profile.html" class="navbar__username" title="Lihat Profil">Halo, ${user.name}</a>
                 <button id="logout-btn" class="btn btn--secondary">Logout</button>
             `;
-            document.getElementById('logout-btn').addEventListener('click', logout); // <-- Fungsi ini juga dari api.js
+            document.getElementById('logout-btn').addEventListener('click', logout);
         } else {
             navUserSection.innerHTML = `<a href="login.html" class="btn btn--primary">Login</a>`;
         }
     }
 
-       const searchForm = document.getElementById('search-form');
+    const searchForm = document.getElementById('search-form');
     if (searchForm) {
         searchForm.addEventListener('submit', (e) => e.preventDefault());
     }
-
 
     // --- Logika Dropdown Notifikasi ---
     const bell = document.getElementById('notification-bell');
@@ -86,15 +87,3 @@ function initializeNavbar() {
     }
 }
 
-// Panggil fungsi pemuat template saat halaman pertama kali dimuat
-document.addEventListener('DOMContentLoaded', async () => {
-    // Gunakan await untuk memastikan komponen dimuat secara berurutan
-    await loadNavbar();
-    await loadFooter();
-
-    // Setelah semua komponen global selesai dimuat,
-    // panggil logika spesifik halaman jika ada.
-    if (typeof window.initializeMainPage === 'function') {
-        window.initializeMainPage();
-    }
-});
