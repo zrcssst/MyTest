@@ -1,5 +1,10 @@
 // js/utils.js
-function formatDisplayDate(timestamp) {
+/**
+ * Memformat timestamp menjadi string waktu relatif (misal: "2 jam yang lalu").
+ * @param {string | number} timestamp - Timestamp dalam format ISO string atau milidetik.
+ * @returns {string} String waktu yang diformat.
+ */
+export function formatDisplayDate(timestamp) {
     const date = new Date(timestamp);
     // Cek apakah tanggal valid. Jika tidak, kembalikan string kosong atau pesan error.
     if (isNaN(date.getTime())) {
@@ -17,8 +22,13 @@ function formatDisplayDate(timestamp) {
     const diffDays = Math.round(diffHours / 24);
     return rtf.format(-diffDays, 'day');
 }
-
-function debounce(func, delay = 400) {
+/**
+ * Membuat fungsi yang menunda eksekusi hingga jeda waktu tertentu setelah event terakhir.
+ * @param {Function} func - Fungsi yang akan di-debounce.
+ * @param {number} [delay=400] - Jeda waktu dalam milidetik.
+ * @returns {Function} Fungsi baru yang sudah di-debounce.
+ */
+export function debounce(func, delay = 400) {
     let timeout;
     return (...args) => {
         clearTimeout(timeout);
