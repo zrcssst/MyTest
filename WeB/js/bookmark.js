@@ -2,12 +2,12 @@
 
 import { getAllThreads, getBookmarks } from './api.js';
 import { createThreadCard } from './components.js'; // <-- [BARU] Impor dari file komponen
-import { loadNavbar, loadFooter } from './templating.js';
+import { loadLayout } from './layout.js'; // Impor fungsi baru
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Muat komponen navbar dan footer
-    await loadNavbar();
-    await loadFooter();
+
+    await loadLayout();
 
     const threadListContainer = document.getElementById('thread-list-container');
     const loadingSpinner = `<div class="loading-spinner"></div>`; // Opsi loading

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi - ForumKita</title>
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container navbar__container">
+            <a href="index.html" class="navbar__logo">ForumKita</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container" style="max-width: 450px; margin-top: 4rem;">
+            <h1>Buat Akun Baru</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Isi data di bawah untuk mendaftar.</p>
+            <form id="register-form">
+                <div id="error-message-register" class="error-message" style="margin-bottom: 1rem; text-align:center;"></div>
+                <div class="form-group">
+                    <label for="name">Nama Lengkap</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn--primary" style="width: 100%;">Daftar</button>
+                <p style="text-align: center; margin-top: 1rem;">
+                    Sudah punya akun? <a href="login.html">Login di sini</a>
+                </p>
+            </form>
+        </div>
+    </main>
+
+    <script type="module" src="js/register.js"></script>
+</body>
+</html>

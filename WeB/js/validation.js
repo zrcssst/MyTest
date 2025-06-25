@@ -1,6 +1,6 @@
-// js/validation.js
+// js/validation.js (Versi Perbaikan)
 
-function validateField(inputElement, errorElementId, errorMessage) {
+export function validateField(inputElement, errorElementId, errorMessage) {
     const errorElement = document.getElementById(errorElementId);
     if (inputElement.checkValidity()) {
         errorElement.textContent = '';

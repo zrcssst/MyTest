@@ -3,12 +3,11 @@
 // [PERBAIKAN] Impor fungsi yang dibutuhkan dari file lain.
 import { getCurrentUser, getUserProfileData } from './api.js';
 import { formatDisplayDate } from './utils.js';
-import { loadNavbar, loadFooter } from './templating.js'; // <-- Tambahkan ini untuk memuat komponen global
-
+import { loadLayout } from './layout.js'
 document.addEventListener('DOMContentLoaded', async () => {
     // [PERBAIKAN] Muat navbar dan footer terlebih dahulu
-    await loadNavbar();
-    await loadFooter();
+  
+    await loadLayout();
     
     // Ambil data pengguna yang sedang login
     const user = getCurrentUser(); 

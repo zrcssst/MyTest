@@ -1,4 +1,4 @@
-// js/components.js
+// js/components.js (Versi Final)
 import { formatDisplayDate } from './utils.js';
 
 /**
@@ -17,7 +17,8 @@ export function createThreadCard(thread) {
 
     const metaDiv = document.createElement('div');
     metaDiv.className = 'thread-card__meta';
-    metaDiv.innerHTML = `<span>Oleh <strong>${thread.author}</strong></span> • <time>${formatDisplayDate(thread.timestamp)}</time>`;
+    // [PERBAIKAN] Menggunakan 'createdAt' sesuai dengan data dari database
+   metaDiv.innerHTML = `<span>Oleh <strong><span class="math-inline">\{thread\.author\.name\}</strong\></span\> • <time\></span>{formatDisplayDate(thread.createdAt)}</time>`;
 
     const statsDiv = document.createElement('div');
     statsDiv.className = 'thread-card__stats';
