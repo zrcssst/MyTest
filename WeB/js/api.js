@@ -106,11 +106,26 @@ export const addDislikeToThread = async (threadId) => { //
     const response = await fetch(`${API_URL}/threads/${threadId}/dislike`, { method: 'PATCH', headers: getAuthHeaders() }); //
     return handleApiResponse(response);
 };
+export const getForumStats = async () => {
+    const response = await fetch(`${API_URL}/stats`);
+    // Gunakan handleApiResponse jika Anda sudah menerapkannya, jika tidak, gunakan try-catch
+     return handleApiResponse(response);
+};
 
 export const getUserProfileData = async () => { //
     const response = await fetch(`${API_URL}/users/profile`, { headers: getAuthHeaders() }); //
     return handleApiResponse(response);
 };
+export const getBookmarkedThreads = async () => {
+    const response = await fetch(`${API_URL}/users/bookmarks`, {
+        headers: getAuthHeaders(),
+    });
+    return handleApiResponse(response);
+};
 
 // ... Fungsi dummy atau belum terimplementasi ...
 export const getNotifications = () => Promise.resolve([{ id: 1, message: "Selamat datang di ForumKita!" }]); //
+export const toggleBookmark = (threadId) => {
+    console.warn("Fitur toggle bookmark belum terhubung ke backend."); 
+    // Logika untuk menambah/menghapus bookmark di masa depan akan ada di sini
+};

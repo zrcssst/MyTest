@@ -35,15 +35,4 @@ document.addEventListener('DOMContentLoaded', () => { //
             }
         });
     }
-
-    // Tambahkan link registrasi jika belum ada
-    const formContainer = document.querySelector('.form-container'); //
-    if (!document.getElementById('register-link-p')) { 
-        const registerLink = document.createElement('p'); //
-        registerLink.id = 'register-link-p';
-        registerLink.style.textAlign = 'center'; //
-        registerLink.style.marginTop = '1rem'; //
-        registerLink.innerHTML = `Belum punya akun? <a href="register.html">Daftar di sini</a>`; //
-        formContainer.appendChild(registerLink); //
-    }
 });

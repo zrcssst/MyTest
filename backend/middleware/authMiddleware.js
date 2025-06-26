@@ -1,7 +1,8 @@
-// backend/middleware/authMiddleware.js
+// backend/middleware/authMiddleware.js (Versi dengan Prisma Terpusat)
+
 const jwt = require('jsonwebtoken');
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+// [DIHAPUS] const { PrismaClient } = require('@prisma/client');
+const prisma = require('../lib/prisma'); // [DIUBAH] Impor instance tunggal dari prisma.js
 
 const protect = async (req, res, next) => {
     let token;
@@ -18,14 +19,11 @@ const protect = async (req, res, next) => {
             if (!req.user) {
                 return res.status(401).json({ message: 'Tidak terotorisasi, pengguna tidak ditemukan' });
             }
-
             next();
         } catch (error) {
             res.status(401).json({ message: 'Tidak terotorisasi, token gagal atau kedaluwarsa' });
         }
-    }
-
-    if (!token) {
+    } else {
         res.status(401).json({ message: 'Tidak terotorisasi, tidak ada token' });
     }
 };

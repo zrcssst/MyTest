@@ -11,29 +11,33 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
-  email     String    @unique
+  email     String     @unique
   password  String
-  createdAt DateTime  @default(now())
+  createdAt DateTime   @default(now())
   threads   Thread[]
   comments  Comment[]
+  bookmarks Bookmark[]
 }
 
 model Thread {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   title         String
   content       String
   category      String
-  views         Int       @default(0)
-  likes         Int       @default(0)
-  dislikes      Int       @default(0)
-  commentsCount Int       @default(0)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  views         Int        @default(0)
+  likes         Int        @default(0)
+  dislikes      Int        @default(0)
+  commentsCount Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   authorId      String
-  author        User      @relation(fields: [authorId], references: [id])
+  author        User       @relation(fields: [authorId], references: [id])
   comments      Comment[]
+  
+  // [PERBAIKAN] Tambahkan relasi balik ini
+  bookmarkedBy  Bookmark[] 
 }
 
 model Comment {
@@ -42,7 +46,19 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   threadId  String
-  thread    Thread   @relation(fields: [threadId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
   authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  threadId  String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, threadId])
 }

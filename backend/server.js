@@ -1,18 +1,16 @@
 // backend/server.js (Versi Final dengan Error Handling dan Keamanan)
 
 // --- 1. Impor Semua Modul ---
-require('dotenv').config(); // Muat variabel dari .env
-const express = require('express'); //
-const cors = require('cors'); //
-const { PrismaClient } = require('@prisma/client'); //
-const bcrypt = require('bcryptjs'); //
-const jwt = require('jsonwebtoken'); //
-const { protect } = require('./middleware/authMiddleware'); //
-const userRoutes = require('./routes/userRoutes'); //
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const prisma = require('./lib/prisma');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { protect } = require('./middleware/authMiddleware');
+const userRoutes = require('./routes/userRoutes');
 
-// --- 2. Inisialisasi Aplikasi ---
-const app = express(); //
-const prisma = new PrismaClient(); //
+const app = express();
 const PORT = 3000; //
 
 // --- 3. Gunakan Middleware ---
