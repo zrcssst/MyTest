@@ -1,44 +1,65 @@
-// js/profile.js
+// WeB/js/profile.js (VERSI PERBAIKAN LENGKAP)
 
-// [PERBAIKAN] Impor fungsi yang dibutuhkan dari file lain.
-import { getCurrentUser, getUserProfileData } from './api.js';
+import { getUserProfileData } from './api.js'; // Pastikan getUserProfileData sudah diekspor dari api.js
 import { formatDisplayDate } from './utils.js';
-import { loadLayout } from './layout.js'
-document.addEventListener('DOMContentLoaded', async () => {
-    // [PERBAIKAN] Muat navbar dan footer terlebih dahulu
-  
+import { loadLayout } from './layout.js';
+import { showError } from './ui.js';
+
+async function initializeProfilePage() {
+    // 1. Muat komponen layout (navbar, footer)
     await loadLayout();
-    
-    // Ambil data pengguna yang sedang login
-    const user = getCurrentUser(); 
 
-    // Pastikan ada pengguna yang login
-    if (user) {
-        const profileData = await getUserProfileData(user.name);
+    // 2. Dapatkan semua elemen yang akan diisi data
+    const profileNameEl = document.getElementById('profile-name');
+    const threadsCountEl = document.getElementById('profile-threads-count');
+    const commentsCountEl = document.getElementById('profile-comments-count');
+    const userThreadsListEl = document.getElementById('user-threads-list');
+    const joinDateEl = document.querySelector('.profile-info p'); 
 
+    try {
+        // 3. Panggil API untuk mendapatkan data profil.
+        // [PERBAIKAN] Tidak perlu argumen, karena backend mengidentifikasi user dari token.
+        const profileData = await getUserProfileData();
+
+        // 4. Isi semua elemen dengan data yang benar dari API
         if (profileData) {
-            // Mengisi data profil dasar
-            document.getElementById('profile-name').textContent = profileData.name;
-            document.getElementById('profile-threads-count').textContent = profileData.threadCount;
-            document.getElementById('profile-comments-count').textContent = profileData.commentCount;
-            document.getElementById('profile-likes-count').textContent = profileData.likesReceived;
+            profileNameEl.textContent = profileData.name;
 
-            // Merender daftar thread yang dibuat oleh pengguna
-            const threadsListContainer = document.getElementById('user-threads-list');
-            if (profileData.threads && profileData.threads.length > 0) {
-                // Sekarang `formatDisplayDate` sudah dikenali
-                threadsListContainer.innerHTML = profileData.threads.map(thread => `
-                    <div class="profile-thread-item">
-                        <a href="thread.html?id=${thread.id}">${thread.title}</a>
-                        <time>${formatDisplayDate(thread.timestamp)}</time> 
-                    </div>
-                `).join('');
-            } else {
-                threadsListContainer.innerHTML = '<p>Anda belum membuat thread apapun.</p>';
+            // [PERBAIKAN] Gunakan .length dari array untuk mendapatkan jumlah
+            threadsCountEl.textContent = profileData.threads ? profileData.threads.length : 0;
+            commentsCountEl.textContent = profileData.comments ? profileData.comments.length : 0;
+
+            // Mengisi tanggal bergabung
+            if(joinDateEl && profileData.createdAt) {
+                const joinDate = new Date(profileData.createdAt).toLocaleDateString('id-ID', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                joinDateEl.textContent = `Bergabung pada: ${joinDate}`;
             }
-        } else {
-            // Penanganan jika data profil gagal dimuat
-            document.getElementById('profile-name').textContent = 'Gagal memuat data';
+
+            // 5. Render daftar thread yang dibuat pengguna
+            if (profileData.threads && profileData.threads.length > 0) {
+                userThreadsListEl.innerHTML = profileData.threads.map(thread => {
+                    // [PERBAIKAN] Pastikan properti yang digunakan benar: 'createdAt', bukan 'timestamp'
+                    const creationDate = formatDisplayDate(thread.createdAt);
+                    return `
+                        <div class="profile-thread-item">
+                            <a href="thread.html?id=${thread.id}">${thread.title}</a>
+                            <time>${creationDate}</time> 
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                userThreadsListEl.innerHTML = '<p>Anda belum membuat thread apapun.</p>';
+            }
         }
+    } catch (error) {
+        // 6. Tangani jika terjadi error saat memuat data
+        showError('mengambil data profil', error);
+        if(profileNameEl) profileNameEl.textContent = 'Gagal memuat profil';
+        if(userThreadsListEl) userThreadsListEl.innerHTML = '<p>Tidak dapat memuat thread.</p>';
     }
-});
+}
+
+// Jalankan fungsi inisialisasi setelah halaman siap
+document.addEventListener('DOMContentLoaded', initializeProfilePage);

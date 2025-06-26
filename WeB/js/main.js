@@ -77,11 +77,15 @@ async function fetchAndRenderThreads() {
         }
         if (state.keyword) {
             const lowerKeyword = state.keyword.toLowerCase();
-            allThreads = allThreads.filter(t => 
-                t.title.toLowerCase().includes(lowerKeyword) || 
-                t.author.toLowerCase().includes(lowerKeyword)
-            );
+            allThreads = allThreads.filter(t => {
+                // Pastikan thread memiliki author dan nama author sebelum melakukan pencarian
+                const authorName = t.author ? t.author.name.toLowerCase() : '';
+                
+                return t.title.toLowerCase().includes(lowerKeyword) || 
+                       authorName.includes(lowerKeyword);
+            });
         }
+
 
         // Sorting
         if (state.sort === 'populer') {

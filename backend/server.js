@@ -1,6 +1,7 @@
 // backend/server.js (Versi Final Sebenarnya)
 
 // --- 1. Impor Semua Modul ---
+require('dotenv').config(); // Muat variabel dari .env
 const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
@@ -44,7 +45,7 @@ app.post('/api/auth/login', async (req, res) => {
         if (!user) return res.status(400).json({ message: "Email atau password salah" });
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) return res.status(400).json({ message: "Email atau password salah" });
-        const token = jwt.sign({ id: user.id, name: user.name }, 'SECRET_KEY_YANG_SANGAT_RAHASIA', { expiresIn: '1h' });
+        const token = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.json({ message: "Login berhasil!", token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
         res.status(500).json({ message: "Server error saat login" });
@@ -61,18 +62,43 @@ app.get('/api/threads', async (req, res) => {
 });
 
 app.get('/api/threads/:id', async (req, res) => {
-    const thread = await prisma.thread.findUnique({
-        where: { id: req.params.id },
-        include: {
-            author: { select: { name: true } },
-            comments: {
-                orderBy: { createdAt: 'asc' },
-                include: { author: { select: { name: true } } }
-            },
-        },
-    });
-    if (thread) res.json(thread);
-    else res.status(404).json({ message: 'Thread tidak ditemukan' });
+    try {
+        const thread = await prisma.thread.findUnique({
+            where: { id: req.params.id },
+            // [PERBAIKAN] Gunakan 'select' untuk memastikan semua data terkirim
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                createdAt: true,
+                likes: true,      // <-- Memastikan data 'likes' terkirim
+                dislikes: true,   // <-- Memastikan data 'dislikes' terkirim
+                author: {
+                    select: { name: true }
+                },
+                comments: {
+                    orderBy: { createdAt: 'asc' },
+                    select: {
+                        id: true,
+                        content: true,
+                        createdAt: true,
+                        author: {
+                            select: { name: true }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (thread) {
+            res.json(thread);
+        } else {
+            res.status(404).json({ message: 'Thread tidak ditemukan' });
+        }
+    } catch (error) {
+        console.error("Gagal mengambil detail thread:", error);
+        res.status(500).json({ message: "Server error saat mengambil thread" });
+    }
 });
 
 // --- Rute Terlindungi (WAJIB Login) ---
@@ -115,6 +141,16 @@ app.patch('/api/threads/:id/dislike', protect, async (req, res) => {
 // --- Rute untuk Profil Pengguna (juga dilindungi) ---
 app.use('/api/users', userRoutes);
 
+app.get('/api/stats', async (req, res) => {
+    try {
+        const totalThreads = await prisma.thread.count();
+        const totalComments = await prisma.comment.count();
+        const totalUsers = await prisma.user.count();
+        res.json({ totalThreads, totalComments, totalUsers });
+    } catch (error) {
+        res.status(500).json({ message: 'Gagal mengambil statistik' });
+    }
+});
 
 // --- 4. Jalankan Server ---
 app.listen(PORT, () => {

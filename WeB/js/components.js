@@ -18,7 +18,7 @@ export function createThreadCard(thread) {
     const metaDiv = document.createElement('div');
     metaDiv.className = 'thread-card__meta';
     // [PERBAIKAN] Menggunakan 'createdAt' sesuai dengan data dari database
-   metaDiv.innerHTML = `<span>Oleh <strong><span class="math-inline">\{thread\.author\.name\}</strong\></span\> • <time\></span>{formatDisplayDate(thread.createdAt)}</time>`;
+    metaDiv.innerHTML = `<span>Oleh <strong>${thread.author.name}</strong></span> • <time>${formatDisplayDate(thread.createdAt)}</time>`;
 
     const statsDiv = document.createElement('div');
     statsDiv.className = 'thread-card__stats';

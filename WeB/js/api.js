@@ -120,7 +120,32 @@ export const addDislikeToThread = async (threadId) => {
 
 
 // --- Fungsi Lainnya ---
-export const getForumStats = async () => ({ totalThreads: (await getAllThreads()).length, totalComments: 0, totalUsers: 15 });
+export const getForumStats = async () => {
+    try {
+        const response = await fetch(`${API_URL}/stats`);
+        if (!response.ok) throw new Error('Gagal mengambil data statistik');
+        return await response.json();
+    } catch (error) {
+        console.error("Gagal mengambil statistik forum:", error);
+        // Kembalikan nilai default jika gagal
+        return { totalThreads: 0, totalComments: 0, totalUsers: 0 };
+    }
+};
+export const getUserProfileData = async () => {
+    // Fungsi ini mendapatkan token dari header untuk otentikasi
+    const response = await fetch(`${API_URL}/users/profile`, {
+        headers: getAuthHeaders(), 
+    });
+    
+    // Jika permintaan gagal, lempar error
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Gagal mengambil data profil');
+    }
+    
+    // Jika berhasil, kembalikan data profil dalam format JSON
+    return await response.json();
+};
 export const getNotifications = () => Promise.resolve([{ id: 1, message: "Selamat datang!" }]);
 export const incrementViewCount = () => console.warn("Fitur belum terhubung ke backend.");
 export const getBookmarks = () => [];

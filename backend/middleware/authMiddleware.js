@@ -13,7 +13,7 @@ const protect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
 
             // 3. Verifikasi token menggunakan secret key
-            const decoded = jwt.verify(token, 'SECRET_KEY_YANG_SANGAT_RAHASIA');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             // 4. Ambil data pengguna dari database berdasarkan ID di dalam token,
             //    lalu tempelkan ke objek 'req' agar bisa digunakan oleh rute selanjutnya.
