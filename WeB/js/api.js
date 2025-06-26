@@ -5,7 +5,7 @@ const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Format standar: "Bearer spasi token"
+        'Authorization': `Bearer ${token}`
     };
 };
 // --- FUNGSI OTENTIKASI BARU ---
@@ -50,21 +50,14 @@ export const getCurrentUser = () => {
 
 
 export const getThreads = async (params = {}) => {
-    // Siapkan parameter default jika tidak ada yang diberikan
     const { sort = 'terbaru', category = 'all', page = 1, keyword = '' } = params;
-    
-    // Buat string query dari parameter
     const queryParams = new URLSearchParams({ sort, category, page, keyword });
-
     try {
         const response = await fetch(`${API_URL}/threads?${queryParams.toString()}`);
-        if (!response.ok) {
-            throw new Error('Gagal mengambil data threads dari server');
-        }
-        return await response.json(); // Akan mengembalikan { threads, currentPage, totalPages }
+        if (!response.ok) throw new Error('Gagal mengambil data threads dari server');
+        return await response.json();
     } catch (error) {
         console.error("Gagal mengambil threads:", error);
-        // Kembalikan struktur data kosong agar tidak error di UI
         return { threads: [], currentPage: 1, totalPages: 1 };
     }
 };
@@ -79,7 +72,6 @@ export const getThreadById = async (id) => {
         throw error;
     }
 };
-
 export const saveNewThread = async (threadData) => {
     const response = await fetch(`${API_URL}/threads`, {
         method: 'POST',
@@ -155,8 +147,30 @@ export const getUserProfileData = async () => {
     // Jika berhasil, kembalikan data profil dalam format JSON
     return await response.json();
 };
+export const getBookmarkedThreads = async () => {
+    const response = await fetch(`${API_URL}/users/bookmarks`, {
+        headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+        const errorData = await response.json();
+        // Beri pesan default jika backend belum siap
+        if (response.status === 404) {
+            console.warn("Fitur bookmark belum terhubung ke backend. Menampilkan data kosong.");
+            return [];
+        }
+        throw new Error(errorData.message || 'Gagal memuat bookmark');
+    }
+    return await response.json();
+};
+
 export const getNotifications = () => Promise.resolve([{ id: 1, message: "Selamat datang!" }]);
+export const toggleBookmark = (threadId) => {
+    // Logika untuk menambah/menghapus bookmark bisa ditambahkan di sini
+    // dengan memanggil API ke backend.
+    console.warn("Fitur toggle bookmark belum terhubung ke backend.");
+    // Contoh:
+    // return fetch(`${API_URL}/threads/${threadId}/bookmark`, { method: 'POST', headers: getAuthHeaders() });
+};
 export const incrementViewCount = () => console.warn("Fitur belum terhubung ke backend.");
 export const getBookmarks = () => [];
 export const isBookmarked = () => false;
-export const toggleBookmark = () => console.warn("Fitur belum terhubung ke backend.");
