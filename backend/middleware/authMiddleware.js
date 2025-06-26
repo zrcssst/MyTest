@@ -6,25 +6,22 @@ const prisma = new PrismaClient();
 const protect = async (req, res, next) => {
     let token;
 
-    // 1. Cek apakah ada token di header 'Authorization'
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            // 2. Ambil token dari header (format: "Bearer <token>")
             token = req.headers.authorization.split(' ')[1];
-
-            // 3. Verifikasi token menggunakan secret key
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-            // 4. Ambil data pengguna dari database berdasarkan ID di dalam token,
-            //    lalu tempelkan ke objek 'req' agar bisa digunakan oleh rute selanjutnya.
             req.user = await prisma.user.findUnique({
                 where: { id: decoded.id },
-                select: { id: true, name: true, email: true } // Pilih data yg aman untuk ditempel
+                select: { id: true, name: true, email: true }
             });
 
-            next(); // Lanjutkan ke rute API yang sebenarnya
+            if (!req.user) {
+                return res.status(401).json({ message: 'Tidak terotorisasi, pengguna tidak ditemukan' });
+            }
+
+            next();
         } catch (error) {
-            res.status(401).json({ message: 'Tidak terotorisasi, token gagal' });
+            res.status(401).json({ message: 'Tidak terotorisasi, token gagal atau kedaluwarsa' });
         }
     }
 

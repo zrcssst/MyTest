@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-   <script>if (!localStorage.getItem('token')) { window.location.replace('login.html'); }</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ForumKita - Forum Diskusi Modern</title>
@@ -14,50 +13,53 @@
     <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-    <div id="navbar-placeholder"></div>
-    <div id="notification-banner"></div>
-    
-    <div id="toast-container"></div>
-
-    <div class="container page-layout">
-        <main class="main-content">
-             <a href="create-thread.html" class="btn btn--primary btn-create-thread-main">Buat Thread Baru</a>
-            <section class="thread-list-header">
-                <h1 id="page-title">Diskusi Terkini</h1>
-                <div class="sorting-options">
-                    <button class="sort-btn active" data-sort="terbaru">Terbaru</button>
-                    <button class="sort-btn" data-sort="populer">Populer</button>
-                    <button class="sort-btn" data-sort="trending">Trending</button>
-                </div>
-            </section>
-            <section id="thread-list-container" class="thread-list"></section>
-            
-            <div id="pagination-container" class="pagination"></div>
-        </main>
-
-        <aside class="sidebar" id="categories">
-            <div class="sidebar-widget">
-                <h3 class="widget-title">Kategori</h3>
-                <ul class="category-list">
-                    <li><a href="#" class="category-link active" data-category="all">Semua Kategori</a></li>
-                    <li><a href="#" class="category-link" data-category="edukasi">Edukasi</a></li>
-                    <li><a href="#" class="category-link" data-category="teknologi">Teknologi</a></li>
-                    <li><a href="#" class="category-link" data-category="hobi">Hobi</a></li>
-                    <li><a href="#" class="category-link" data-category="umum">Umum</a></li>
-                </ul>
-            </div>
-            <div class="sidebar-widget">
-                <h3 class="widget-title">Statistik Forum</h3>
-                <ul class="stats-list">
-                    <li id="stats-threads">Threads: 0</li>
-                    <li id="stats-comments">Komentar: 0</li>
-                    <li id="stats-users">Pengguna: 0</li>
-                </ul>
-            </div>
-        </aside>
+    <div id="full-page-loader">
+        <div class="loading-spinner"></div>
     </div>
-    <div id="footer-placeholder"></div>
+    
+    <div id="page-content" style="display: none;">
+        <div id="navbar-placeholder"></div>
+        <div id="notification-banner"></div>
+        <div id="toast-container"></div>
 
+        <div class="container page-layout">
+            <main class="main-content">
+                <a href="create-thread.html" class="btn btn--primary btn-create-thread-main">Buat Thread Baru</a>
+                <section class="thread-list-header">
+                    <h1 id="page-title">Diskusi Terkini</h1>
+                    <div class="sorting-options">
+                        <button class="sort-btn active" data-sort="terbaru">Terbaru</button>
+                        <button class="sort-btn" data-sort="populer">Populer</button>
+                        <button class="sort-btn" data-sort="trending">Trending</button>
+                    </div>
+                </section>
+                <section id="thread-list-container" class="thread-list"></section>
+                <div id="pagination-container" class="pagination"></div>
+            </main>
+
+            <aside class="sidebar" id="categories">
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Kategori</h3>
+                    <ul class="category-list">
+                        <li><a href="#" class="category-link active" data-category="all">Semua Kategori</a></li>
+                        <li><a href="#" class="category-link" data-category="edukasi">Edukasi</a></li>
+                        <li><a href="#" class="category-link" data-category="teknologi">Teknologi</a></li>
+                        <li><a href="#" class="category-link" data-category="hobi">Hobi</a></li>
+                        <li><a href="#" class="category-link" data-category="umum">Umum</a></li>
+                    </ul>
+                </div>
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Statistik Forum</h3>
+                    <ul class="stats-list">
+                        <li id="stats-threads">Threads: 0</li>
+                        <li id="stats-comments">Komentar: 0</li>
+                        <li id="stats-users">Pengguna: 0</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+        <div id="footer-placeholder"></div>
+    </div>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
