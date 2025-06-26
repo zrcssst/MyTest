@@ -1,7 +1,7 @@
 // backend/server.js (Versi Final Sebenarnya)
 
 // --- 1. Impor Semua Modul ---
-require('dotenv').config(); // Muat variabel dari .env
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
@@ -16,10 +16,9 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
 
 // --- 3. Gunakan Middleware ---
-// [PERBAIKAN] Konfigurasi CORS yang lebih aman
 const frontendURL = process.env.FRONTEND_URL || 'http://127.0.0.1:5500';
 app.use(cors({
-    origin: frontendURL, // Hanya izinkan akses dari frontend Anda
+    origin: frontendURL,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -173,21 +172,38 @@ app.post('/api/threads/:threadId/comments', protect, async (req, res) => {
 });
 
 app.patch('/api/threads/:id/like', protect, async (req, res) => {
-    const updatedThread = await prisma.thread.update({
-        where: { id: req.params.id },
-        data: { likes: { increment: 1 } },
-    });
-    res.json(updatedThread);
+    try {
+        const updatedThread = await prisma.thread.update({
+            where: { id: req.params.id },
+            data: { likes: { increment: 1 } },
+        });
+        res.json(updatedThread);
+    } catch (error) {
+        console.error("Error saat menyukai thread:", error);
+        // Prisma akan melempar eror dengan kode P2025 jika record tidak ditemukan
+        if (error.code === 'P2025') {
+            return res.status(404).json({ message: 'Thread tidak ditemukan untuk disukai.' });
+        }
+        // Untuk eror lainnya
+        res.status(500).json({ message: 'Terjadi eror di server saat memproses permintaan Anda.' });
+    }
 });
 
 app.patch('/api/threads/:id/dislike', protect, async (req, res) => {
-    const updatedThread = await prisma.thread.update({
-        where: { id: req.params.id },
-        data: { dislikes: { increment: 1 } },
-    });
-    res.json(updatedThread);
+    try {
+        const updatedThread = await prisma.thread.update({
+            where: { id: req.params.id },
+            data: { dislikes: { increment: 1 } },
+        });
+        res.json(updatedThread);
+    } catch (error) {
+        console.error("Error saat tidak menyukai thread:", error);
+        if (error.code === 'P2025') {
+            return res.status(404).json({ message: 'Thread tidak ditemukan untuk tidak disukai.' });
+        }
+        res.status(500).json({ message: 'Terjadi eror di server saat memproses permintaan Anda.' });
+    }
 });
-
 
 // --- Rute untuk Profil Pengguna dan Statistik ---
 app.use('/api/users', userRoutes);

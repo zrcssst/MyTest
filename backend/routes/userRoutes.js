@@ -7,6 +7,29 @@ const { protect } = require('../middleware/authMiddleware');
 
 // Rute untuk mendapatkan profil pengguna yang sedang login
 // Endpoint: GET /api/users/profile
+router.get('/bookmarks', protect, async (req, res) => {
+    try {
+        // Asumsi Anda punya model Bookmark di Prisma
+        const bookmarks = await prisma.bookmark.findMany({
+            where: { userId: req.user.id },
+            include: {
+                thread: { // Sertakan data thread lengkap
+                    include: {
+                        author: { select: { name: true } }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        // Ekstrak hanya data thread dari hasil bookmark
+        const bookmarkedThreads = bookmarks.map(b => b.thread);
+        res.json(bookmarkedThreads);
+
+    } catch (error) {
+        res.status(500).json({ message: "Gagal mengambil bookmark" });
+    }
+});
 router.get('/profile', protect, async (req, res) => {
     try {
         // Middleware 'protect' sudah menempelkan data user ke req.user

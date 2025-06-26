@@ -1,4 +1,5 @@
-// prisma/schema.prisma (Versi dengan Otentikasi)
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -9,36 +10,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// [BARU] Membuat model untuk Pengguna
 model User {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
-  email     String   @unique // Setiap email harus unik
-  password  String   // Kita akan menyimpan password yang sudah di-hash
-  createdAt DateTime @default(now())
-
-  // Relasi: Satu user bisa membuat banyak thread dan komentar
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
   threads   Thread[]
   comments  Comment[]
 }
 
 model Thread {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   title         String
-  category      String
   content       String
-  views         Int      @default(0)
-  likes         Int      @default(0)
-  dislikes      Int      @default(0)
-  commentsCount Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  comments      Comment[]
-  
-  // [DIUBAH] Menghubungkan thread ke pembuatnya (User)
-  author        User     @relation(fields: [authorId], references: [id])
+  category      String
+  views         Int       @default(0)
+  likes         Int       @default(0)
+  dislikes      Int       @default(0)
+  commentsCount Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   authorId      String
+  author        User      @relation(fields: [authorId], references: [id])
+  comments      Comment[]
 }
 
 model Comment {
@@ -46,11 +41,8 @@ model Comment {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  thread    Thread   @relation(fields: [threadId], references: [id])
   threadId  String
-  
-  // [DIUBAH] Menghubungkan komentar ke pembuatnya (User)
-  author    User     @relation(fields: [authorId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id])
   authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
 }
