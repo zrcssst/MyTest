@@ -4,6 +4,7 @@ import { getUserProfileData } from './api.js'; // Pastikan getUserProfileData su
 import { formatDisplayDate } from './utils.js';
 import { loadLayout } from './layout.js';
 import { showError } from './ui.js';
+import { protectPage } from './authGuard.js';
 
 async function initializeProfilePage() {
     // 1. Muat komponen layout (navbar, footer)
@@ -62,4 +63,12 @@ async function initializeProfilePage() {
 }
 
 // Jalankan fungsi inisialisasi setelah halaman siap
-document.addEventListener('DOMContentLoaded', initializeProfilePage);
+document.addEventListener('DOMContentLoaded', () => {
+    // Jalankan guard SEBELUM melakukan hal lain
+    if (protectPage()) {
+        // Jika otentikasi berhasil, lanjutkan untuk menginisialisasi halaman
+        initializeProfilePage();
+    }
+    // Jika tidak berhasil, 'protectPage' akan mengurus pengalihan,
+    // dan sisa kode tidak akan berjalan.
+});

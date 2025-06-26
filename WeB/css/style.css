@@ -159,3 +159,15 @@ button:disabled { cursor: not-allowed; background-color: var(--text-secondary) !
 .toast--error {
     background-color: #e76f51; /* Warna merah untuk error */
 }
+#full-page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background-primary);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

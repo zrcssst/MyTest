@@ -49,14 +49,23 @@ export const getCurrentUser = () => {
 };
 
 
-export const getAllThreads = async () => {
+export const getThreads = async (params = {}) => {
+    // Siapkan parameter default jika tidak ada yang diberikan
+    const { sort = 'terbaru', category = 'all', page = 1, keyword = '' } = params;
+    
+    // Buat string query dari parameter
+    const queryParams = new URLSearchParams({ sort, category, page, keyword });
+
     try {
-        const response = await fetch(`${API_URL}/threads`);
-        if (!response.ok) throw new Error('Gagal mengambil data threads');
-        return await response.json();
+        const response = await fetch(`${API_URL}/threads?${queryParams.toString()}`);
+        if (!response.ok) {
+            throw new Error('Gagal mengambil data threads dari server');
+        }
+        return await response.json(); // Akan mengembalikan { threads, currentPage, totalPages }
     } catch (error) {
-        console.error("Gagal mengambil semua threads:", error);
-        return [];
+        console.error("Gagal mengambil threads:", error);
+        // Kembalikan struktur data kosong agar tidak error di UI
+        return { threads: [], currentPage: 1, totalPages: 1 };
     }
 };
 

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-   <script>if (!localStorage.getItem('token')) { window.location.replace('login.html'); }</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Saya - ForumKita</title>
@@ -14,10 +13,13 @@
     <link rel="stylesheet" href="css/animations.css">
 </head>
 <body>
-    <div id="navbar-placeholder"></div>
-
-    <div id="toast-container"></div>
-
+  <div id="full-page-loader">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <div id="page-content" style="display: none;">
+        <div id="navbar-placeholder"></div>
+        <div id="toast-container"></div>
     <main class="container">
         <div class="profile-header">
             <div class="profile-avatar"><i class="fa-solid fa-user"></i></div>

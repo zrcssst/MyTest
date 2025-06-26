@@ -16,7 +16,11 @@ const prisma = new PrismaClient();
 const PORT = 3000;
 
 // --- 3. Gunakan Middleware ---
-app.use(cors());
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'], 
+    allowedHeaders: ['Content-Type', 'Authorization'] 
+}));
 app.use(express.json());
 
 // =================================================================
@@ -54,11 +58,61 @@ app.post('/api/auth/login', async (req, res) => {
 
 // --- Rute Publik untuk Membaca Data ---
 app.get('/api/threads', async (req, res) => {
-    const threads = await prisma.thread.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: { author: { select: { name: true } } }
-    });
-    res.json(threads);
+    try {
+        // 1. Ambil parameter dari query URL (misal: ?page=2&sort=populer)
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15; // Tentukan jumlah item per halaman
+        const skip = (page - 1) * limit;
+
+        const { sort, category, keyword } = req.query;
+
+        // 2. Siapkan kondisi filter untuk Prisma
+        const where = {};
+        if (category && category !== 'all') {
+            where.category = category;
+        }
+        if (keyword) {
+            where.OR = [
+                { title: { contains: keyword, mode: 'insensitive' } },
+                { author: { name: { contains: keyword, mode: 'insensitive' } } }
+            ];
+        }
+
+        // 3. Siapkan kondisi pengurutan untuk Prisma
+        let orderBy = { createdAt: 'desc' }; // Default sort
+        if (sort === 'trending') {
+            orderBy = { views: 'desc' };
+        } else if (sort === 'populer') {
+            // Catatan: Sorting berdasarkan 'likes' + 'comments' secara langsung di Prisma ORM
+            // sedikit rumit. Untuk sekarang, kita sederhanakan 'populer' berarti paling banyak disukai.
+            orderBy = { likes: 'desc' };
+        }
+
+        // 4. Jalankan dua query: satu untuk mengambil data, satu untuk menghitung total
+        const threads = await prisma.thread.findMany({
+            where,
+            orderBy,
+            skip,
+            take: limit,
+            include: {
+                author: { select: { name: true } }
+            }
+        });
+
+        const totalThreads = await prisma.thread.count({ where });
+        const totalPages = Math.ceil(totalThreads / limit);
+
+        // 5. Kirim data beserta informasi paginasi
+        res.json({
+            threads,
+            currentPage: page,
+            totalPages
+        });
+
+    } catch (error) {
+        console.error("Gagal mengambil threads:", error);
+        res.status(500).json({ message: "Server error saat mengambil threads" });
+    }
 });
 
 app.get('/api/threads/:id', async (req, res) => {
