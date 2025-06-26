@@ -2,8 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-// [DIHAPUS] const { PrismaClient } = require('@prisma/client');
-const prisma = require('../lib/prisma'); // [DIUBAH] Impor instance tunggal dari prisma.js
+const prisma = require('../lib/prisma'); // 
 const { protect } = require('../middleware/authMiddleware');
 
 // Rute untuk mendapatkan profil pengguna (tidak ada perubahan logika)
