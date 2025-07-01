@@ -30,13 +30,12 @@ model Thread {
   likes         Int        @default(0)
   dislikes      Int        @default(0)
   commentsCount Int        @default(0)
+  bookmarksCount Int       @default(0) 
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   authorId      String
   author        User       @relation(fields: [authorId], references: [id])
   comments      Comment[]
-  
-  // [PERBAIKAN] Tambahkan relasi balik ini
   bookmarkedBy  Bookmark[] 
 }
 

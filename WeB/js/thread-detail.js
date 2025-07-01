@@ -1,6 +1,6 @@
 // WeB/js/thread-detail.js (Versi Final dengan DOM API Penuh)
 
-import { getThreadById, addCommentToThread, addLikeToThread, addDislikeToThread } from './api.js';
+import { getThreadById, addCommentToThread, addLikeToThread, addDislikeToThread, addBookmark, removeBookmark } from './api.js';
 import { formatDisplayDate } from './utils.js';
 import { loadLayout } from './layout.js';
 import { showToast, showError } from './ui.js';
@@ -48,60 +48,121 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="thread-full__content">${DOMPurify.sanitize(threadData.content, { USE_PROFILES: { html: true } })}</div>
             `;
 
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'thread-full__actions';
-            const likeBtn = document.createElement('button');
-            likeBtn.className = 'btn-action';
-            likeBtn.id = 'like-btn';
-            likeBtn.dataset.threadId = threadData.id;
-            likeBtn.innerHTML = `<i class="fa-regular fa-thumbs-up"></i> Suka`;
-            const likeScore = document.createElement('span');
-            likeScore.className = 'vote-score';
-            likeScore.textContent = threadData.likes || 0;
-            const dislikeBtn = document.createElement('button');
-            dislikeBtn.className = 'btn-action';
-            dislikeBtn.id = 'dislike-btn';
-            dislikeBtn.dataset.threadId = threadData.id;
-            dislikeBtn.innerHTML = `<i class="fa-regular fa-thumbs-down"></i> Tidak Suka`;
-            const dislikeScore = document.createElement('span');
-            dislikeScore.className = 'vote-score';
-            dislikeScore.textContent = threadData.dislikes || 0;
-            actionsDiv.append(likeBtn, likeScore, dislikeBtn, dislikeScore);
-            article.appendChild(actionsDiv);
+             const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'thread-full__actions';
 
-            const commentsSection = document.createElement('section');
-            commentsSection.className = 'comments-section';
-            commentsSection.innerHTML = `
-                <h2>${threadData.comments?.length || 0} Komentar</h2>
-                <form id="comment-form" class="comment-form">
-                    <textarea id="comment-content" placeholder="Tulis komentarmu di sini..." rows="4" required></textarea>
-                    <button type="submit" class="btn btn--primary">Kirim Komentar</button>
-                </form>
-                <div class="comments-list">${renderComments(threadData.comments)}</div>
-            `;
-            
-            threadContainer.append(article, commentsSection);
-        }
+    // 2. Buat semua tombol (Like, Dislike, Bookmark)
+    const likeBtn = document.createElement('button');
+    likeBtn.className = 'btn-action';
+    likeBtn.id = 'like-btn';
+    likeBtn.dataset.threadId = threadData.id;
+    likeBtn.innerHTML = `<i class="fa-regular fa-thumbs-up"></i> Suka`;
+    const likeScore = document.createElement('span');
+    likeScore.className = 'vote-score';
+    likeScore.textContent = threadData.likes || 0;
+
+    const dislikeBtn = document.createElement('button');
+    dislikeBtn.className = 'btn-action';
+    dislikeBtn.id = 'dislike-btn';
+    dislikeBtn.dataset.threadId = threadData.id;
+    dislikeBtn.innerHTML = `<i class="fa-regular fa-thumbs-down"></i> Tidak Suka`;
+    const dislikeScore = document.createElement('span');
+    dislikeScore.className = 'vote-score';
+    dislikeScore.textContent = threadData.dislikes || 0;
+
+    const bookmarkBtn = document.createElement('button');
+    bookmarkBtn.className = 'btn-action';
+    bookmarkBtn.id = 'bookmark-btn';
+    bookmarkBtn.dataset.threadId = threadData.id;
+    if (threadData.isBookmarked) {
+        bookmarkBtn.classList.add('active');
+        bookmarkBtn.innerHTML = `<i class="fa-solid fa-bookmark"></i> Disimpan`;
+        bookmarkBtn.dataset.bookmarked = "true";
+    } else {
+        bookmarkBtn.innerHTML = `<i class="fa-regular fa-bookmark"></i> Simpan`;
+        bookmarkBtn.dataset.bookmarked = "false";
+    }
+       const bookmarkScore = document.createElement('span');
+    bookmarkScore.className = 'vote-score'; 
+    bookmarkScore.id = 'bookmark-score';
+    bookmarkScore.textContent = threadData.bookmarksCount || 0;
+
+     actionsDiv.append(likeBtn, likeScore, dislikeBtn, dislikeScore, bookmarkBtn, bookmarkScore);
+    article.appendChild(actionsDiv);
+
+    const commentsSection = document.createElement('section');
+    commentsSection.className = 'comments-section';
+    commentsSection.innerHTML = `
+        <h2>${threadData.comments?.length || 0} Komentar</h2>
+        <form id="comment-form" class="comment-form">
+            <textarea id="comment-content" placeholder="Tulis komentarmu di sini..." rows="4" required></textarea>
+            <button type="submit" class="btn btn--primary">Kirim Komentar</button>
+        </form>
+        <div class="comments-list">${renderComments(threadData.comments)}</div>
+    `;
+    
+    threadContainer.append(article, commentsSection);
+}
 
         threadContainer.addEventListener('click', async (event) => {
-            const target = event.target.closest('button');
-            if (!target) return;
-            if (target.id === 'like-btn' || target.id === 'dislike-btn') {
+    const target = event.target.closest('button');
+    if (!target) return; 
+
+    const threadId = target.dataset.threadId;
+
+   if (target.id === 'bookmark-btn') {
                 target.disabled = true;
-                try {
-                    const action = target.id === 'like-btn' ? addLikeToThread : addDislikeToThread;
-                    const updatedThread = await action(threadId);
-                    const likeScoreEl = threadContainer.querySelector('#like-btn + .vote-score');
-                    const dislikeScoreEl = threadContainer.querySelector('#dislike-btn + .vote-score');
-                    if (likeScoreEl) likeScoreEl.textContent = updatedThread.likes || 0;
-                    if (dislikeScoreEl) dislikeScoreEl.textContent = updatedThread.dislikes || 0;
-                } catch (error) {
-                    showError(`melakukan ${target.id === 'like-btn' ? 'like' : 'dislike'}`, error);
-                } finally {
-                    target.disabled = false;
-                }
+                const isBookmarked = target.dataset.bookmarked === 'true';
+                const bookmarkScoreEl = threadContainer.querySelector('#bookmark-score');
+        try {
+             
+             if (isBookmarked) {
+                        await removeBookmark(threadId); // Panggil API untuk menghapus
+                        target.innerHTML = `<i class="fa-regular fa-bookmark"></i> Simpan`;
+                        target.classList.remove('active');
+                        target.dataset.bookmarked = "false";
+                        if (bookmarkScoreEl) bookmarkScoreEl.textContent = Math.max(0, parseInt(bookmarkScoreEl.textContent) - 1);
+                        showToast('Bookmark dihapus!', 'success');
+                    } else {
+                        await addBookmark(threadId); // Panggil API untuk menambah
+                        target.innerHTML = `<i class="fa-solid fa-bookmark"></i> Disimpan`;
+                        target.classList.add('active');
+                        target.dataset.bookmarked = "true";
+                        if (bookmarkScoreEl) bookmarkScoreEl.textContent = parseInt(bookmarkScoreEl.textContent) + 1;
+                        showToast('Bookmark ditambahkan!', 'success');
+                    }
+        } catch (error) {
+            if (error.message && error.message.includes("sudah di-bookmark")) {
+                target.innerHTML = `<i class="fa-solid fa-bookmark"></i> Disimpan`;
+                target.classList.add('active');
+                target.dataset.bookmarked = "true";
+                showToast('Thread ini memang sudah disimpan.', 'success');
+            } else {
+                showError('memperbarui bookmark', error);
             }
-        });
+        } finally {
+            target.disabled = false;
+        }
+        return;
+    }
+
+    if (target.id === 'like-btn' || target.id === 'dislike-btn') {
+        target.disabled = true;
+        try {
+            const action = target.id === 'like-btn' ? addLikeToThread : addDislikeToThread;
+            // Sekarang threadId sudah dikenal di sini
+            const updatedThread = await action(threadId);
+            const likeScoreEl = threadContainer.querySelector('#like-btn + .vote-score');
+            const dislikeScoreEl = threadContainer.querySelector('#dislike-btn + .vote-score');
+            if (likeScoreEl) likeScoreEl.textContent = updatedThread.likes || 0;
+            if (dislikeScoreEl) dislikeScoreEl.textContent = updatedThread.dislikes || 0;
+        } catch (error) {
+            showError(`melakukan ${target.id === 'like-btn' ? 'like' : 'dislike'}`, error);
+        } finally {
+            target.disabled = false;
+        }
+    }
+});
 
         threadContainer.addEventListener('submit', async (event) => {
             if (event.target.id === 'comment-form') {

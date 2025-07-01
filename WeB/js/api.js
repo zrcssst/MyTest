@@ -106,6 +106,21 @@ export const addDislikeToThread = async (threadId) => { //
     const response = await fetch(`${API_URL}/threads/${threadId}/dislike`, { method: 'PATCH', headers: getAuthHeaders() }); //
     return handleApiResponse(response);
 };
+export const addBookmark = async (threadId) => {
+    const response = await fetch(`${API_URL}/users/bookmarks/${threadId}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+    });
+    return handleApiResponse(response);
+};
+
+export const removeBookmark = async (threadId) => {
+    const response = await fetch(`${API_URL}/users/bookmarks/${threadId}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+    });
+    return handleApiResponse(response);
+};
 export const getForumStats = async () => {
     const response = await fetch(`${API_URL}/stats`);
     // Gunakan handleApiResponse jika Anda sudah menerapkannya, jika tidak, gunakan try-catch

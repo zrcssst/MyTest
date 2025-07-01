@@ -117,6 +117,22 @@ app.get('/api/threads', async (req, res) => { //
 
 app.get('/api/threads/:id', async (req, res) => { //
     try {
+          await prisma.thread.update({
+            where: { id: req.params.id },
+            data: { views: { increment: 1 } },
+        });
+         let userId = null;
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.split(' ')[1];
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                userId = decoded.id;
+            } catch (err) {
+                // Token tidak valid, abaikan saja, user dianggap tidak login
+                console.log("Token tidak valid saat memeriksa bookmark.");
+            }
+        }
         const thread = await prisma.thread.findUnique({ //
             where: { id: req.params.id }, //
             // [PERBAIKAN] Gunakan 'select' untuk memastikan semua data terkirim
@@ -149,11 +165,27 @@ app.get('/api/threads/:id', async (req, res) => { //
         } else {
             res.status(404).json({ message: 'Thread tidak ditemukan' }); //
         }
+         let isBookmarked = false;
+        if (userId) {
+            const bookmark = await prisma.bookmark.findUnique({
+                where: {
+                    userId_threadId: { userId, threadId: thread.id }
+                }
+            });
+            isBookmarked = !!bookmark; // Konversi ke boolean
+        }
+         const responseData = { ...thread, isBookmarked };
+
+        await prisma.thread.update({
+            where: { id: req.params.id },
+            data: { views: { increment: 1 } },
+        });
     } catch (error) {
         console.error("Gagal mengambil detail thread:", error); //
         res.status(500).json({ message: "Server error saat mengambil thread" }); //
     }
 });
+
 
 // --- Rute Terlindungi (WAJIB Login) ---
 app.post('/api/threads', protect, async (req, res) => { //
